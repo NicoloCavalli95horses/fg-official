@@ -67,13 +67,12 @@ const show = reactive({
 
 <style lang="scss" scoped>
 nav {
-  position: fixed;
+  position: absolute; // cover the main video to trim the yt header
   top: 0;
   left: 0;
   width: 100%;
   display: flex;
   align-items: center;
-  z-index: 1;
   span {
     text-transform: uppercase;
     letter-spacing: 5px;

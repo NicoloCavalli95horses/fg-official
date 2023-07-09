@@ -6,12 +6,12 @@
   --secondary: rgb(222, 231, 237);
   --footer-bg: rgb(31, 48, 72);
   --footer-bg-05: rgba(31, 48, 72, 0.5);
-  --background: rgb(39, 55, 77);
   --backdrop: rgba(255, 235, 210, 0.1);
   --font-light: rgb(238, 231, 223);
   --font-dark: rgb(82, 109, 130);
   --white: rgb(240, 240, 255); 
-  --black: rgb(17, 17, 17);
+  --black: rgb(0, 0, 0);
+  --background: var(--black); /*rgb(39, 55, 77);*/
   --error-color: rgb(209, 44, 44);
 
   --radius-xl: 2.6rem;
@@ -60,7 +60,7 @@ body {
 }
 
 nav {
-  background-color: var(--background);
+  background-color: var(--black);
 }
 
 /* Font */
