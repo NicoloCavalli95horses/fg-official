@@ -1,31 +1,53 @@
-<template></template>
+<template>
+  <img :src="item.url">
+  <p>{{  item  }}</p>
+</template>
 
 <script setup>
 // ==============================
 // Import
 // ==============================
-import { onBeforeMount } from 'vue'
+import { 
+  onBeforeMount,
+  reactive
+} from 'vue'
+import filters from '../utils/filters';
+
 
 // ==============================
-// Props, const
+// Props
 // ==============================
 const props = defineProps({
   url: String
 })
 
+const item = reactive({
+  title: '',
+  year: -1,
+  url: '',
+  link: '',
+  length: {},
+});
+
+
+// ==============================
+// Functions
+// ==============================
+
+// ==============================
+// Life cycle
+// ==============================
 onBeforeMount(() => {
-  console.log( props.url );
   // Fetch general information about (title, publishedAt, ecc)
   fetch(
     `https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id=${props.url}&key=AIzaSyApcFqDDN0iy1-gy1gD6zYB-biOqxiTcus`
   )
     .then((data) => data.json())
     .then((data) => {
-      console.log(data)
-      // title.value[index] = data.items[0].snippet.title
-      // publishedAt.value[index] = filter.timestamp(data.items[0].snippet.publishedAt)
-      // thumbnail.value[index] = data.items[0].snippet.thumbnails.high.url
-      // externalLink.value[index] = 'https://youtu.be/' + id.url
+      item.title = data.items[0].snippet.title;
+      item.year = new Date(data.items[0].snippet.publishedAt).getFullYear();
+      item.url = data.items[0].snippet.thumbnails.high.url;
+      item.link = 'https://youtu.be/' + props.url;
     })
 
   // Fetch specific information (video length)
@@ -34,8 +56,7 @@ onBeforeMount(() => {
   )
     .then((data) => data.json())
     .then((data) => {
-      console.log( data )
-      // videoLength.value[index] = filter.videoLength(data.items[0].contentDetails.duration)
+      item.length = filters.mmss(data.items[0].contentDetails.duration)
     })
 })
 </script>

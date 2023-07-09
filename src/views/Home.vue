@@ -4,15 +4,16 @@
 
   <section class="body">
     <!-- Section -->
-    <h3 :class="[ device == 'mobile' ? 'bottom-12' : 'bottom-36']">Section name</h3>
+    <h3 :class="[ device == 'mobile' ? 'bottom-12' : 'bottom-36']">Featured video</h3>
+    <VideoThumbnail v-if="video[0]" :url="video[0].url" />
     <div class="separator" />
     
     <!-- Section -->
-    <h3 :class="[ device == 'mobile' ? 'bottom-12' : 'bottom-36']">Section name</h3>
+    <h3 :class="[ device == 'mobile' ? 'bottom-12' : 'bottom-36']">Music video</h3>
     <div class="separator" />
     
     <!-- Section -->
-    <h3 :class="[ device == 'mobile' ? 'bottom-12' : 'bottom-36']">Section name</h3>
+    <h3 :class="[ device == 'mobile' ? 'bottom-12' : 'bottom-36']">Social</h3>
     <div class="separator" />
   </section>
 
@@ -41,6 +42,7 @@ import {
 
 import OnTopBtn from "../components/OnTopBtn.vue";
 import VideoPreview from "../components/VideoPreview.vue";
+import VideoThumbnail from "../components/VideoThumbnail.vue";
 
 
 //==============================
