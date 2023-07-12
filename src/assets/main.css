@@ -368,3 +368,22 @@ label {
   width: 2.4rem;
   height: 2.4rem;
 }
+
+.grey-text {
+  color: var(--grey);
+}
+
+.scroll-x {
+  width: 100%;
+  overflow-x: scroll;
+  height: max-content;
+  text-align: center;
+  overflow: auto;
+  white-space: nowrap;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  scroll-behavior: smooth;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
