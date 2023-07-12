@@ -87,13 +87,14 @@ function onBackdropClick() {
 $header-h: 6rem;
 $footer-h: 8rem;
 $gap: 2.2rem;
+$bg-color: rgb(39, 55, 77);
 .backdrop {
   .modal {
     border-radius: var(--radius-s);
     padding: $gap 2.6rem;
     justify-content: space-around;
     gap: $gap;
-    background-color: var(--background);
+    background-color: $bg-color;
     position: absolute;
     top: 50%;
     left: 50%;

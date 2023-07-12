@@ -12,7 +12,7 @@
         <div class="input-wrapper">
           <input
             ref="input_ref"
-            type="text"
+            :type="anonymize ? 'password' : 'text'"
             autocomplete="none"
             :class="{ 'error': error && !modelValue }"
             :value="display_uppercase ? modelValue.toUpperCase() : modelValue"
@@ -154,7 +154,10 @@ const props = defineProps({
   ext_class: String,
 
   // Max length of the input
-  length: Number
+  length: Number,
+
+  // Type password
+  anonymize: Boolean
 });
 
 defineEmits([

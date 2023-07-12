@@ -27,18 +27,38 @@
 
   <!-- Go back on top button -->
   <OnTopBtn />
+
+  <!-- Login modal -->
+  <Modal 
+    v-if="show.login && device == 'desktop'"
+    title="Login"
+    max_width="40rem"
+    max_height="35rem"
+    :click_out_close="true"
+    @closed="show.login = false"
+  >
+
+    <InputText label="Username" v-model="username" @reset="username = ''" />
+    <InputText label="Password" v-model="password" :anonymize="true" @reset="password = ''" />
+    <template #footer>
+      <Btn text="conferma"></Btn>
+    </template>
+  </Modal>
 </template>
 
 <script setup>
 //==============================
 // Import
 //==============================
-import { onBeforeMount, onMounted, ref } from 'vue'
+import { onBeforeMount, onMounted, reactive, ref } from 'vue'
 import { getViewport } from '../utils/screen_size.js'
 import { db } from '../../firebase/config'
 import { getDocs, collection } from 'firebase/firestore'
 import { apiGetYouTubeData } from '../utils/apis'
 
+import Btn from '../components/Btn.vue'
+import Modal from '../components/Modal.vue'
+import InputText from '../components/InputText.vue'
 import Carousel from '../components/Carousel.vue'
 import OnTopBtn from '../components/OnTopBtn.vue'
 import VideoPreview from '../components/VideoPreview.vue'
@@ -50,6 +70,13 @@ import VideoThumbnail from '../components/VideoThumbnail.vue'
 const device = getViewport()
 const main_video = ref(null)
 const featured_video = ref([])
+
+const show = reactive({
+  login: false,
+})
+
+const username = ref('');
+const password = ref('');
 
 // fake featured videos
 const urls = ['rpAJV8znIps', 'rpAJV8znIps', 'rpAJV8znIps']
