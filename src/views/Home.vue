@@ -1,11 +1,7 @@
 <template>
   <!-- Hero section -->
   <div class="preview-wrapper">
-    <VideoPreview
-      v-if="main_video"
-      :url="main_video.url"
-      :can_edit="is_logged"
-    />
+    <VideoPreview v-if="main_video" :url="main_video.url" />
     <div v-if="is_logged" class="btn-layer">
       <div class="btn">
         <Btn :def="true" text="modifica" @click="() => { show.edit = true; edit_type = MAIN_VIDEO; }">
@@ -19,7 +15,7 @@
 
   <section class="body">
     <!-- Section -->
-    <h3 :class="[device == 'mobile' ? 'bottom-12' : 'bottom-36']">Featured video</h3>
+    <h3 :class="[device == 'mobile' ? 'bottom-12' : 'bottom-36', 'top-24']">Featured video</h3>
     <Carousel v-if="featured_video.length">
       <VideoThumbnail
         v-for="(video, i) in featured_video"
@@ -32,18 +28,18 @@
     <div class="separator" />
 
     <!-- Section -->
-    <h3 :class="[device == 'mobile' ? 'bottom-12' : 'bottom-36']">Music video</h3>
-    <Carousel v-if="featured_video.length">
+    <!-- <h3 :class="[device == 'mobile' ? 'bottom-12' : 'bottom-36']">Music video</h3> -->
+    <!-- <Carousel v-if="featured_video.length"> -->
       <!-- <VideoThumbnail v-for="(video, i) in featured_video" :key="video.title + i" :item="video" /> -->
-    </Carousel>
-    <div class="separator" />
+    <!-- </Carousel> -->
+    <!-- <div class="separator" /> -->
 
     <!-- Section -->
-    <h3 :class="[device == 'mobile' ? 'bottom-12' : 'bottom-36']">Social</h3>
-    <Carousel v-if="featured_video.length">
+    <!-- <h3 :class="[device == 'mobile' ? 'bottom-12' : 'bottom-36']">Social</h3> -->
+    <!-- <Carousel v-if="featured_video.length"> -->
       <!-- <VideoThumbnail v-for="(video, i) in featured_video" :key="video.title + i" :item="video" /> -->
-    </Carousel>
-    <div class="separator" />
+    <!-- </Carousel> -->
+    <!-- <div class="separator" /> -->
   </section>
 
   <!-- Go back on top button -->
@@ -58,12 +54,14 @@
     :click_out_close="true"
     @closed="show.login = false"
   >
-
-    <InputText label="Email" v-model="email" @reset="email = ''" />
-    <InputText label="Password" v-model="password" :anonymize="true" @reset="password = ''" />
-    <p class="error top-12" v-if="error">Wrong email or password</p>
+    <form>
+      <InputText label="Email" v-model="email" placeholder="example@gmail.com" @reset="email = ''" />
+      <InputText label="Password" v-model="password" placeholder="password" :anonymize="true" @reset="password = ''" />
+      <p class="error top-12" v-if="error">{{ error }}</p>
+    </form>
     <template #footer>
-      <Btn text="conferma" @click="onSubmit"></Btn>
+      <Btn text="chiudi" @click="show.login = false" />
+      <Btn :def="true" text="conferma" @click="onLogin" />
     </template>
   </Modal>
 
@@ -73,13 +71,15 @@
     :title="'Modifica ' + getEditLabel"
     max_width="50rem"
     min_width="50rem"
-    max_height="38rem"
+    max_height="30rem"
     :click_out_close="true"
     @closed="show.edit = false"
   >
     <InputText label="Video ID" v-model="edit_url" placeholder="Incollare qui video ID" @reset="edit_url = ''" />
+    <p class="error top-12" v-if="error">{{ error }}</p>
     <template #footer>
-      <Btn text="conferma" @click="onConfirmEdit"></Btn>
+      <Btn text="chiudi" @click="show.edit = false" />
+      <Btn text="conferma" :def="true" @click="onConfirmEdit" />
     </template>
   </Modal>
 
@@ -94,27 +94,37 @@
 //==============================
 // Import
 //==============================
-import { computed, onBeforeMount, onMounted, reactive, ref } from 'vue'
+import { 
+  ref,
+  reactive,
+  computed,
+  onMounted,
+  onBeforeMount,
+} from 'vue'
+import {
+  login,
+  getItem,
+  updateItem
+} from '../../firebase/utils'
 import { getViewport } from '../utils/screen_size.js'
-import { db } from '../../firebase/config'
-import { getDocs, doc, collection, updateDoc } from 'firebase/firestore'
 import { apiGetYouTubeData } from '../utils/apis'
-import useLogin from '../../firebase/useLogin'
 
 import Btn from '../components/Btn.vue'
 import Modal from '../components/Modal.vue'
-import InputText from '../components/InputText.vue'
 import Carousel from '../components/Carousel.vue'
 import OnTopBtn from '../components/OnTopBtn.vue'
+import InputText from '../components/InputText.vue'
 import VideoPreview from '../components/VideoPreview.vue'
 import VideoThumbnail from '../components/VideoThumbnail.vue'
 import KeyboardShortcut from '../components/KeyboardShortcut.vue'
+
 
 //==============================
 // Consts
 //==============================
 const MAIN_VIDEO = 'main_video';
 const FEATURED_VIDEO = 'featured_video';
+
 
 //==============================
 // Consts
@@ -132,11 +142,10 @@ const show = reactive({
 
 const email = ref('');
 const password = ref('');
+const error = ref( false );
 
 // fake featured videos
 const urls = ['rpAJV8znIps', 'rpAJV8znIps', 'rpAJV8znIps']
-
-const { login, error } = useLogin();
 
 const getEditLabel = computed( () => {
   let str = '';
@@ -147,6 +156,9 @@ const getEditLabel = computed( () => {
   }
   return str;
 });
+
+
+
 //==============================
 // Functions
 //==============================
@@ -157,47 +169,44 @@ async function loadFeaturedVideo() {
   }
 }
 
-async function onSubmit() {
-  await login( email.value, password.value );
-  if (!error.value) {
+
+async function onLogin() {
+  const res = await login({ email: email.value, password: password.value });
+  error.value = res.value;
+  email.value = '';
+  password.value = '';
+  if ( !error.value ) {
     is_logged.value = true;
     show.login = false;
   }
-  email.value = '';
-  password.value = '';
 }
+
 
 async function onConfirmEdit(){
-  const main_video_col = doc(db, 'video/mainVideo');
-  await updateDoc(main_video_col, { url: edit_url.value })
-
-  const col = collection(db, 'video')
-  const response = await getDocs(col)
-  response.docs.forEach((doc) => {
-    main_video.value = { ...doc.data(), id: doc.id }
-  })
-
-  show.edit = false;
+  const err = await updateItem({ documentName: 'main', url: edit_url.value });
+  error.value = err.value;
   edit_url.value = '';
+  if ( !error.value ) {
+    const res = await getItem({ documentName: 'main' });
+    show.edit = false;
+    main_video.value = res.value.data();
+  }
 }
+
 
 //==============================
 // Life cycle
 //==============================
-
 onBeforeMount(async () => {
-  // main video id will be retrieved from the firebase database
-  // consider exporting this in a utility function
-  const col = collection(db, 'video')
-  const response = await getDocs(col)
-  response.docs.forEach((doc) => {
-    main_video.value = { ...doc.data(), id: doc.id }
-  })
+  const res = await getItem({ documentName: 'main'});
+  main_video.value = res.value.data();
 })
 
 onMounted(async () => {
   await loadFeaturedVideo()
 })
+
+
 </script>
 
 <style lang="scss" scoped>
