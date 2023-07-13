@@ -387,3 +387,10 @@ label {
     display: none;
   }
 }
+
+.error {
+  color: var(--error-color);
+}
+.grey-text {
+  color: var(--grey);
+}
