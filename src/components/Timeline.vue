@@ -2,7 +2,7 @@
   <div class="main">
     <div class="wrapper">
       <div class="line" />
-      <div v-for="ev in events" :key="ev.title" class="rect">
+      <div v-for="ev in orderedEvents" :key="ev.title" class="rect">
         <div class="half">
           <div class="year">
             <h3>{{ ev.year }}</h3>
@@ -19,13 +19,22 @@
 // ==============================
 // Import
 // ==============================
-defineProps({
-  events: Array,
-})
+import {
+  computed
+} from "vue"
 
 // ==============================
 // Import
 // ==============================
+const props = defineProps({
+  events: Array,
+  reverse: Boolean,
+})
+
+// ==============================
+// Consts
+// ==============================
+const orderedEvents = computed(() => props.reverse ? props.events.reverse() : props.events );
 </script>
 
 <style lang="scss" scoped>

@@ -4,7 +4,7 @@
     <VideoPreview v-if="main_video" :url="main_video.url" />
     <div v-if="is_logged" class="btn-layer">
       <div class="btn">
-        <Btn :def="true" text="modifica" @click="() => { show.edit = true; edit_type = MAIN_VIDEO; }">
+        <Btn :def="true" text="modifica" @click="onEditMain">
           <template #icon>
             <Icon icon="fa-solid fa-pencil" class="svg-18 l-12" />
           </template>
@@ -13,24 +13,26 @@
     </div>
   </div>
 
+  <div class="separator" />
   <section class="body">
     <!-- Video section -->
     <template v-for="(video, category) in all_video" :key="category">
       <h3 class="capitalize">{{ category }} video</h3>
       <Carousel v-if="video.length">
-        <VideoThumbnail
-          v-for="(v, i) in video"
-          :key="v.title + i"
-          :item="v"
-          :bigger="category == FEATURED"
-        />
+          <VideoThumbnail
+            v-for="(v, i) in video"
+            :key="v.title + i"
+            :item="v"
+            :bigger="category == FEATURED"
+            :show_actions="is_logged"
+          />
       </Carousel>
       <div class="separator" />
     </template>
 
     <div class="separator" />
     <Carousel>
-      <Timeline  :events="events" />
+      <Timeline :events="events" :reverse="true" />
     </Carousel>
 
     <div class="separator" />
@@ -249,6 +251,11 @@ async function onConfirmEdit(){
     show.edit = false;
     main_video.value = res.value.data();
   }
+}
+
+function onEditMain() {
+  show.edit = true;
+  edit_type.value = MAIN_VIDEO;
 }
 
 

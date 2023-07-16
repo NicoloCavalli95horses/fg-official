@@ -1,10 +1,11 @@
 import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
+import { apiKey } from '../env'
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyA2A_viicYnbqaqtZb7Rh5Iqe_nMKgHQc4",
+  apiKey,
   authDomain: "fg-project-5de5c.firebaseapp.com",
   projectId: "fg-project-5de5c",
   storageBucket: "fg-project-5de5c.appspot.com",
