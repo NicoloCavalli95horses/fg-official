@@ -4,13 +4,13 @@
 :root {
   --primary: rgb(23, 131, 218);
   --secondary: rgb(222, 231, 237);
-  --footer-bg: rgb(11, 11, 11); /* rgb(31, 48, 72); */
+  --footer-bg: rgb(31, 31, 31); /* rgb(31, 48, 72); */
   --footer-bg-05: rgba(31, 48, 72, 0.5);
   --backdrop: rgba(255, 235, 210, 0.1);
   --font-light: rgb(238, 231, 223);
   --font-dark: rgb(82, 109, 130);
   --white: rgb(240, 240, 255); 
-  --black: rgb(0, 0, 0);
+  --black: rgb(11, 11, 11);
   --background: var(--black); /*rgb(39, 55, 77);*/
   --error-color: rgb(209, 44, 44);
 
@@ -135,12 +135,12 @@ a {
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 0.6rem;
+  width: 0.3rem;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: var(--font-dark);
+  background: var(--black);
 }
 
 /* Handle */

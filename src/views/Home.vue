@@ -17,7 +17,7 @@
   <section class="body">
     <!-- Video section -->
     <template v-for="(video, category) in all_video" :key="category">
-      <h3 class="capitalize">{{ category }} video</h3>
+      <h3 class="capitalize bottom-24">{{ category }} video</h3>
       <Carousel v-if="video.length">
           <VideoThumbnail
             v-for="(v, i) in video"
@@ -34,6 +34,11 @@
     <Carousel>
       <Timeline :events="events" :reverse="true" />
     </Carousel>
+
+    <div class="separator" />
+    <div class="separator" />
+    
+    <h3>Original compositions</h3>
 
     <div class="separator" />
     <div class="separator" />
@@ -136,52 +141,62 @@ const events = [
   {
     year: 2011,
     title: 'Corso ENAIP',
-    content: 'Conseguito corso di Tecnico Multimediale audio-video ENAIP'
+    content: 'Conseguito corso di Tecnico Multimediale audio-video ENAIP',
+    icon: 'fa-solid fa-school'
   },
   {
     year: 2011,
     title: 'Majestic Studio',
-    content: 'Stage formativo presso Majestic Studio'
+    content: 'Stage formativo presso Majestic Studio',
+    icon: 'fa-solid fa-school'
   },
   {
     year: 2014,
     title: 'Teodasia tra i 10 migliori brani',
-    content: "Teodasia classificato tra i primi 10 migliori brani di Cristina D'Avena"
+    content: "Teodasia classificato tra i primi 10 migliori brani di Cristina D'Avena",
+    icon: 'fa-solid fa-music'
   },
   {
     year: 2015,
     title: 'Composizione musica da film SAE',
-    content: 'Conseguito corso di composizione professionale per musica da film (SAE, Milano)'
+    content: 'Conseguito corso di composizione professionale per musica da film (SAE, Milano)',
+    icon: 'fa-solid fa-music'
   },
   {
     year: 2016,
     title: 'iLike Social Business Network',
-    content: 'Documentario per iLike Social Business Network'
+    content: 'Documentario per iLike Social Business Network',
+    icon: 'fa-solid fa-video'
   },
   {
     year: 2017,
     title: 'Festival Souramont',
-    content: 'Teodasia miglior band al festival di Souramont'
+    content: 'Teodasia miglior band al festival di Souramont',
+    icon: 'fa-solid fa-award'
   },
   {
     year: 2018,
     title: 'Insieme Idee Persone',
-    content: 'Regia per trasmissione televisiva'
+    content: 'Regia per trasmissione televisiva',
+    icon: 'fa-solid fa-tv'
   },
   {
     year: 2018,
     title: 'Cattive Abitudini',
-    content: "Documentario per Band 'Cattive Abitudini'"
+    content: "Documentario per Band 'Cattive Abitudini'",
+    icon: 'fa-solid fa-video'
   },
   {
     year: 2019,
     title: 'Direttore creativo Exozerol',
-    content: 'Direttore creativo per Exozerol, Mirano (VE)'
+    content: 'Direttore creativo per Exozerol, Mirano (VE)',
+    icon: 'fa-solid fa-video'
   },
   {
     year: 2020,
     title: 'Premio festival di Latina',
-    content: "Dolo Città Gentile - primo premio al festival di Latina, sezione 'Paese Mio'"
+    content: "Dolo Città Gentile - primo premio al festival di Latina, sezione 'Paese Mio'",
+    icon: 'fa-solid fa-award'
   }
 ]
 

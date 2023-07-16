@@ -2,7 +2,7 @@
   <a :href="item.href">
     <div :class="['thumb-wrapper', { 'bigger': bigger, 'opaque' : show_actions }]">
       <img :src="item.src" />
-      <div class="c-text">
+      <div class="c-text top-12">
         <p>{{ filters.slice(item.title) }}</p>
         <p class="grey-text">{{ formatDuration }} ({{ item.year }})</p>
       </div>
