@@ -14,32 +14,27 @@
   </div>
 
   <section class="body">
-    <!-- Section -->
-    <h3 :class="[device == 'mobile' ? 'bottom-12' : 'bottom-36', 'top-24']">Featured video</h3>
-    <Carousel v-if="featured_video.length">
-      <VideoThumbnail
-        v-for="(video, i) in featured_video"
-        :key="video.title + i"
-        :item="video"
-        :bigger="true"
-        :edit="is_logged"
-      />
-    </Carousel>
+    <!-- Video section -->
+    <template v-for="(video, category) in all_video" :key="category">
+      <h3 class="capitalize">{{ category }} video</h3>
+      <Carousel v-if="video.length">
+        <VideoThumbnail
+          v-for="(v, i) in video"
+          :key="v.title + i"
+          :item="v"
+          :bigger="category == FEATURED"
+        />
+      </Carousel>
+      <div class="separator" />
+    </template>
+
     <div class="separator" />
+    <Carousel>
+      <Timeline  :events="events" />
+    </Carousel>
 
-    <!-- Section -->
-    <!-- <h3 :class="[device == 'mobile' ? 'bottom-12' : 'bottom-36']">Music video</h3> -->
-    <!-- <Carousel v-if="featured_video.length"> -->
-      <!-- <VideoThumbnail v-for="(video, i) in featured_video" :key="video.title + i" :item="video" /> -->
-    <!-- </Carousel> -->
-    <!-- <div class="separator" /> -->
-
-    <!-- Section -->
-    <!-- <h3 :class="[device == 'mobile' ? 'bottom-12' : 'bottom-36']">Social</h3> -->
-    <!-- <Carousel v-if="featured_video.length"> -->
-      <!-- <VideoThumbnail v-for="(video, i) in featured_video" :key="video.title + i" :item="video" /> -->
-    <!-- </Carousel> -->
-    <!-- <div class="separator" /> -->
+    <div class="separator" />
+    <div class="separator" />
   </section>
 
   <!-- Go back on top button -->
@@ -98,7 +93,6 @@ import {
   ref,
   reactive,
   computed,
-  onMounted,
   onBeforeMount,
 } from 'vue'
 import {
@@ -111,6 +105,7 @@ import { apiGetYouTubeData } from '../utils/apis'
 
 import Btn from '../components/Btn.vue'
 import Modal from '../components/Modal.vue'
+import Timeline from '../components/Timeline.vue'
 import Carousel from '../components/Carousel.vue'
 import OnTopBtn from '../components/OnTopBtn.vue'
 import InputText from '../components/InputText.vue'
@@ -123,7 +118,7 @@ import KeyboardShortcut from '../components/KeyboardShortcut.vue'
 // Consts
 //==============================
 const MAIN_VIDEO = 'main_video';
-const FEATURED_VIDEO = 'featured_video';
+const FEATURED = 'featured';
 
 
 //==============================
@@ -131,10 +126,68 @@ const FEATURED_VIDEO = 'featured_video';
 //==============================
 const device = getViewport();
 const main_video = ref( null );
-const featured_video = ref( [] );
 const is_logged = ref( false );
 const edit_type = ref( '' );
 const edit_url = ref( '' );
+
+const events = [
+  {
+    year: 2011,
+    title: 'Corso ENAIP',
+    content: 'Conseguito corso di Tecnico Multimediale audio-video ENAIP'
+  },
+  {
+    year: 2011,
+    title: 'Majestic Studio',
+    content: 'Stage formativo presso Majestic Studio'
+  },
+  {
+    year: 2014,
+    title: 'Teodasia tra i 10 migliori brani',
+    content: "Teodasia classificato tra i primi 10 migliori brani di Cristina D'Avena"
+  },
+  {
+    year: 2015,
+    title: 'Composizione musica da film SAE',
+    content: 'Conseguito corso di composizione professionale per musica da film (SAE, Milano)'
+  },
+  {
+    year: 2016,
+    title: 'iLike Social Business Network',
+    content: 'Documentario per iLike Social Business Network'
+  },
+  {
+    year: 2017,
+    title: 'Festival Souramont',
+    content: 'Teodasia miglior band al festival di Souramont'
+  },
+  {
+    year: 2018,
+    title: 'Insieme Idee Persone',
+    content: 'Regia per trasmissione televisiva'
+  },
+  {
+    year: 2018,
+    title: 'Cattive Abitudini',
+    content: "Documentario per Band 'Cattive Abitudini'"
+  },
+  {
+    year: 2019,
+    title: 'Direttore creativo Exozerol',
+    content: 'Direttore creativo per Exozerol, Mirano (VE)'
+  },
+  {
+    year: 2020,
+    title: 'Premio festival di Latina',
+    content: "Dolo Città Gentile - primo premio al festival di Latina, sezione 'Paese Mio'"
+  }
+]
+
+const all_video = reactive({
+  'featured' : [],
+  'music' : [],
+  'social' : [],
+});
 
 const show = reactive({
   login: false,
@@ -144,8 +197,6 @@ const email = ref('');
 const password = ref('');
 const error = ref( false );
 
-// fake featured videos
-const urls = ['rpAJV8znIps', 'rpAJV8znIps', 'rpAJV8znIps']
 
 const getEditLabel = computed( () => {
   let str = '';
@@ -158,14 +209,21 @@ const getEditLabel = computed( () => {
 });
 
 
-
 //==============================
 // Functions
 //==============================
-async function loadFeaturedVideo() {
-  for (const url of urls) {
-    const data = await apiGetYouTubeData({ url })
-    featured_video.value.push(data)
+async function loadAllVideo() {
+  for ( const [ category, array ] of Object.entries( all_video ) ) {
+    await loadVideo({ category, array })
+  }
+}
+
+async function loadVideo({ category, array }) {
+  const res = await getItem({ documentName: category });
+  const data = res.value.data();
+  for ( const url of data.urls ) {
+    const data = await apiGetYouTubeData({ url });
+    array.push( data );
   }
 }
 
@@ -200,10 +258,8 @@ async function onConfirmEdit(){
 onBeforeMount(async () => {
   const res = await getItem({ documentName: 'main'});
   main_video.value = res.value.data();
-})
 
-onMounted(async () => {
-  await loadFeaturedVideo()
+  await loadAllVideo();
 })
 
 

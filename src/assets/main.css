@@ -212,7 +212,7 @@ svg {
 
 .separator {
   width: 100%;
-  height: 88px;
+  height: 10rem;
 }
 
 .bold {
@@ -393,4 +393,8 @@ label {
 }
 .grey-text {
   color: var(--grey);
+}
+
+.capitalize {
+  text-transform: capitalize;
 }
