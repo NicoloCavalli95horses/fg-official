@@ -17,8 +17,8 @@
   <section class="body">
     <!-- Video section -->
     <template v-for="(video, category) in all_video" :key="category">
-      <h3 class="capitalize bottom-24">{{ category }} video</h3>
-      <Carousel v-if="video.length">
+      <h3 class="capitalize">{{ category }} video</h3>
+      <Carousel v-if="video.length" class="top-24">
           <VideoThumbnail
             v-for="(v, i) in video"
             :key="v.title + i"
@@ -30,17 +30,20 @@
       <div class="separator" />
     </template>
 
-    <div class="separator" />
-    <Carousel>
+    <h3>Goals and achievements</h3>
+    <Carousel class="top-24">
       <Timeline :events="events" :reverse="true" />
     </Carousel>
-
-    <div class="separator" />
     <div class="separator" />
     
     <h3>Original compositions</h3>
-
+    <Carousel class="top-24">
+      <MusicPreview v-for="(src, i) in iframes_src" :key="src" :src="src" :class="{ 'l-12' : i > 0 }" />
+    </Carousel>
     <div class="separator" />
+
+    <h3>Get in touch</h3>
+    <ContactForm />
     <div class="separator" />
   </section>
 
@@ -115,8 +118,10 @@ import Modal from '../components/Modal.vue'
 import Timeline from '../components/Timeline.vue'
 import Carousel from '../components/Carousel.vue'
 import OnTopBtn from '../components/OnTopBtn.vue'
+import ContactForm from '../components/ContactForm.vue'
 import InputText from '../components/InputText.vue'
 import VideoPreview from '../components/VideoPreview.vue'
+import MusicPreview from '../components/MusicPreview.vue'
 import VideoThumbnail from '../components/VideoThumbnail.vue'
 import KeyboardShortcut from '../components/KeyboardShortcut.vue'
 
@@ -198,6 +203,10 @@ const events = [
     content: "Dolo Città Gentile - primo premio al festival di Latina, sezione 'Paese Mio'",
     icon: 'fa-solid fa-award'
   }
+]
+const iframes_src = [
+  'https://open.spotify.com/embed/artist/2o59zMoStcmwcT2fKxC2vo?utm_source=generator&theme=0',
+  'https://open.spotify.com/embed/artist/16JXnESerYvanRg1CGhkLz?utm_source=generator&theme=0'
 ]
 
 const all_video = reactive({

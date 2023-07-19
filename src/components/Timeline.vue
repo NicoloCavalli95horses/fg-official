@@ -4,13 +4,13 @@
       <div class="line" />
 
       <!-- today -->
-      <div class="rect">
+      <!-- <div class="rect">
         <div class="half noborder">
           <div class="today">
             <h3>Today</h3>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <div v-for="(ev, i) in orderedEvents" :key="ev.title" class="rect">
         <div class="half">
@@ -82,11 +82,10 @@ $left-rect-border: 0.3rem;
       &:nth-of-type(odd) {
         align-items: flex-end;
       }
-      .year,
-      .today {
+      .year, .today {
         position: absolute;
         transform: translate(-50%, -50%);
-        padding: 1.5rem 2rem;
+        padding: 1rem;
         box-sizing: border-box;
         background-color: var(--black);
       }
@@ -95,7 +94,7 @@ $left-rect-border: 0.3rem;
         width: max-content;
       }
       .year {
-        width: 13rem;
+        width: 10rem;
       }
       &:nth-of-type(odd) .half .year {
         top: 0;
