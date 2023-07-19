@@ -209,8 +209,7 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .input-wrapper {
   position: relative;
-  input,
-  textarea {
+  input, textarea {
     box-sizing: border-box;
     width: 100%;
     border-radius: 1.2rem;

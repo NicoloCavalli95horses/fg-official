@@ -14,7 +14,7 @@
   user-select: none;
   background-color: black;
   border-radius: 50%;
-  width: 8rem;
-  height: 8rem;
+  width: 5rem;
+  height: 5rem;
 }
 </style>

@@ -2,9 +2,10 @@
   <!-- Desktop/tablet -->
   <nav v-if="device == 'desktop' || device == 'tablet'" class="desktop">
     <Logo />
-    <span><a href="#about">Video</a></span>
-    <span><a href="#where">Music</a></span>
-    <span><a href="#faq">About</a></span>
+    <span><a href="#video">Video</a></span>
+    <span><a href="#about">About</a></span>
+    <span><a href="#music">Music</a></span>
+    <span><a href="#contact">Contact</a></span>
   </nav>
 
   <!-- Mobile -->
@@ -22,18 +23,18 @@
       <Icon icon="fa-solid fa-close" class="svg-24" @click="show.mobile_menu = false" />
     </div>
     <div class="nav-options">
-      <a class="option" href="#about" @click="show.mobile_menu = false">
+      <a class="option" href="#video" @click="show.mobile_menu = false">
         <h4>Video</h4>
       </a>
-      <a class="option" href="#where" @click="show.mobile_menu = false">
-        <h4>Music</h4>
-      </a>
-      <a class="option" href="#faq" @click="show.mobile_menu = false">
+      <a class="option" href="#about" @click="show.mobile_menu = false">
         <h4>About</h4>
       </a>
-      <div class="w-100 flex-center top-48">
-        <Btn text="contattaci" :def="true" @click="() => { show.mobile_menu = false; $router.push('/contact'); }" />
-      </div>
+      <a class="option" href="#music" @click="show.mobile_menu = false">
+        <h4>Music</h4>
+      </a>
+      <a class="option" href="#contact" @click="show.mobile_menu = false">
+        <h4>Contact</h4>
+      </a>
     </div>
  </div>
 
@@ -67,7 +68,6 @@ const show = reactive({
 
 <style lang="scss" scoped>
 nav {
-  position: absolute; // cover the main video to trim the yt header
   top: 0;
   left: 0;
   width: 100%;
@@ -81,10 +81,12 @@ nav {
     cursor: pointer;
   }
   &.desktop {
+    position: absolute; // cover the main video to trim the yt header
     height: var(--nav-height-desktop);
     justify-content: space-around;
   }
   &.mobile {
+   position: fixed;
    height: var(--nav-height-mobile);
    justify-content: space-between;
    .menu {
@@ -138,10 +140,12 @@ nav {
     .option {
       width: 100%;
       padding: 2.3rem 0;
-      border-bottom: 0.2rem solid var(--primary);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      &:not(:last-of-type) {
+        border-bottom: 0.2rem solid var(--primary);
+      }
     }
   }
 }

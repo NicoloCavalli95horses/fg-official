@@ -17,7 +17,8 @@
   <section class="body">
     <!-- Video section -->
     <template v-for="(video, category) in all_video" :key="category">
-      <h3 class="capitalize">{{ category }} video</h3>
+      <h2 v-if="category == 'featured'" class="capitalize" id="video"> {{ category }} video </h2>
+      <h3 v-else class="capitalize">{{ category }} video</h3>
       <Carousel v-if="video.length" class="top-24">
           <VideoThumbnail
             v-for="(v, i) in video"
@@ -30,20 +31,21 @@
       <div class="separator" />
     </template>
 
-    <h3>Goals and achievements</h3>
+    <h3 id="about">About me</h3>
     <Carousel class="top-24">
       <Timeline :events="events" :reverse="true" />
     </Carousel>
     <div class="separator" />
     
-    <h3>Original compositions</h3>
+    <h3 id="music">Original compositions</h3>
     <Carousel class="top-24">
       <MusicPreview v-for="(src, i) in iframes_src" :key="src" :src="src" :class="{ 'l-12' : i > 0 }" />
     </Carousel>
     <div class="separator" />
 
-    <h3>Get in touch</h3>
+    <h3 id="contact">Contact me</h3>
     <ContactForm />
+    <div class="separator" />
     <div class="separator" />
   </section>
 
