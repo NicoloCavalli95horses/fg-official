@@ -1,7 +1,7 @@
 <template>
   <!-- Hero section -->
   <div class="preview-wrapper">
-    <VideoPreview v-if="main_video" :url="main_video.url" />
+    <VideoPreview v-if="main_video" :id="main_video?.url" />
     <div v-if="is_logged" class="btn-layer">
       <div class="btn">
         <Btn :def="true" text="modifica" @click="onEditMain">
@@ -17,16 +17,34 @@
   <section class="body">
     <!-- Video section -->
     <template v-for="(video, category) in all_video" :key="category">
-      <h2 v-if="category == 'featured'" class="capitalize" id="video"> {{ category }} video </h2>
+      <h2 v-if="category == 'featured'" class="capitalize" id="video">{{ category }} video</h2>
       <h3 v-else class="capitalize">{{ category }} video</h3>
-      <Carousel v-if="video.length" class="top-24">
+      <Carousel class="top-24">
+        <div v-if="is_logged" :class="['placeholder-card', { bigger: category == 'featured' }]">
+          <Btn :def="true" text="aggiungi" class="add-btn" @click="onAddVideo({ category })">
+            <template #icon>
+              <Icon icon="fa-solid fa-plus" class="svg-18 l-12" />
+            </template>
+          </Btn>
+        </div>
+        <template v-if="video.length">
           <VideoThumbnail
             v-for="(v, i) in video"
             :key="v.title + i"
             :item="v"
             :bigger="category == FEATURED"
             :show_actions="is_logged"
+            @delete="(firebase_id) => onVideoDelete({ category: category, id: firebase_id })"
+            @edit="
+              (item) =>
+                onVideoUpdate({
+                  category: category,
+                  yt_id: item.yt_id,
+                  firebase_id: item.firebase_id
+                })
+            "
           />
+        </template>
       </Carousel>
       <div class="separator" />
     </template>
@@ -36,10 +54,15 @@
       <Timeline :events="events" :reverse="true" />
     </Carousel>
     <div class="separator" />
-    
+
     <h3 id="music">Original compositions</h3>
     <Carousel class="top-24">
-      <MusicPreview v-for="(src, i) in iframes_src" :key="src" :src="src" :class="{ 'l-12' : i > 0 }" />
+      <MusicPreview
+        v-for="(src, i) in iframes_src"
+        :key="src"
+        :src="src"
+        :class="{ 'l-12': i > 0 }"
+      />
     </Carousel>
     <div class="separator" />
 
@@ -53,7 +76,7 @@
   <OnTopBtn />
 
   <!-- Login modal -->
-  <Modal 
+  <Modal
     v-if="show.login && device != 'mobile'"
     title="Login"
     max_width="40rem"
@@ -62,8 +85,19 @@
     @closed="show.login = false"
   >
     <form>
-      <InputText label="Email" v-model="email" placeholder="example@gmail.com" @reset="email = ''" />
-      <InputText label="Password" v-model="password" placeholder="password" :anonymize="true" @reset="password = ''" />
+      <InputText
+        label="Email"
+        v-model="email"
+        placeholder="example@gmail.com"
+        @reset="email = ''"
+      />
+      <InputText
+        label="Password"
+        v-model="password"
+        placeholder="password"
+        :anonymize="true"
+        @reset="password = ''"
+      />
       <p class="error top-12" v-if="error">{{ error }}</p>
     </form>
     <template #footer>
@@ -75,14 +109,19 @@
   <!-- Edit modal -->
   <Modal
     v-if="show.edit && device != 'mobile'"
-    :title="'Modifica ' + getEditLabel"
+    title="Modifica"
     max_width="50rem"
     min_width="50rem"
     max_height="30rem"
     :click_out_close="true"
     @closed="show.edit = false"
   >
-    <InputText label="Video ID" v-model="edit_url" placeholder="Incollare qui video ID" @reset="edit_url = ''" />
+    <InputText
+      label="Video ID"
+      v-model="edit_yt_id"
+      placeholder="Incollare qui video ID"
+      @reset="edit_yt_id = ''"
+    />
     <p class="error top-12" v-if="error">{{ error }}</p>
     <template #footer>
       <Btn text="chiudi" @click="show.edit = false" />
@@ -90,27 +129,45 @@
     </template>
   </Modal>
 
-  <KeyboardShortcut
-    :keys="['k']"
-    :modifiers="['Control', 'Alt']"
-    @keydown="show.login = true"
-  />
+  <!-- Add new modal -->
+  <Modal
+    v-if="show.add && device != 'mobile'"
+    title="Aggiungi video"
+    max_width="50rem"
+    min_width="50rem"
+    max_height="30rem"
+    :click_out_close="true"
+    @closed="show.add = false"
+  >
+    <InputText
+      label="Video ID"
+      v-model="edit_yt_id"
+      placeholder="Incollare qui video ID"
+      @reset="edit_yt_id = ''"
+    />
+    <p class="error top-12" v-if="error">{{ error }}</p>
+    <template #footer>
+      <Btn text="chiudi" @click="show.add = false" />
+      <Btn text="conferma" :def="true" @click="onConfirmAdd" />
+    </template>
+  </Modal>
+
+  <KeyboardShortcut :keys="['k']" :modifiers="['Control', 'Alt']" @keydown="show.login = true" />
 </template>
 
 <script setup>
 //==============================
 // Import
 //==============================
-import { 
-  ref,
-  reactive,
-  computed,
-  onBeforeMount,
-} from 'vue'
+import { ref, reactive, computed, onBeforeMount } from 'vue'
 import {
   login,
-  getItem,
-  updateItem
+  getVideo,
+  updateItem,
+  addItem,
+  deleteItem,
+  getMainVideo,
+  updateMainItem
 } from '../../firebase/utils'
 import { getViewport } from '../utils/screen_size.js'
 import { apiGetYouTubeData } from '../utils/apis'
@@ -120,29 +177,28 @@ import Modal from '../components/Modal.vue'
 import Timeline from '../components/Timeline.vue'
 import Carousel from '../components/Carousel.vue'
 import OnTopBtn from '../components/OnTopBtn.vue'
-import ContactForm from '../components/ContactForm.vue'
 import InputText from '../components/InputText.vue'
+import ContactForm from '../components/ContactForm.vue'
 import VideoPreview from '../components/VideoPreview.vue'
 import MusicPreview from '../components/MusicPreview.vue'
 import VideoThumbnail from '../components/VideoThumbnail.vue'
 import KeyboardShortcut from '../components/KeyboardShortcut.vue'
 
+//==============================
+// Consts
+//==============================
+const MAIN_VIDEO = 'main_video'
+const FEATURED = 'featured'
 
 //==============================
 // Consts
 //==============================
-const MAIN_VIDEO = 'main_video';
-const FEATURED = 'featured';
-
-
-//==============================
-// Consts
-//==============================
-const device = getViewport();
-const main_video = ref( null );
-const is_logged = ref( false );
-const edit_type = ref( '' );
-const edit_url = ref( '' );
+const device = getViewport()
+const main_video = ref(null)
+const is_logged = ref(false)
+const edit_type = ref('')
+const edit_yt_id = ref('')
+const edit_firebase_id = ref('')
 
 const events = [
   {
@@ -212,90 +268,117 @@ const iframes_src = [
 ]
 
 const all_video = reactive({
-  'featured' : [],
-  'music' : [],
-  'social' : [],
-});
-
-const show = reactive({
-  login: false,
+  featured: [],
+  music: [],
+  social: []
 })
 
-const email = ref('');
-const password = ref('');
-const error = ref( false );
+const show = reactive({
+  edit: false,
+  add: false,
+  login: false
+})
 
-
-const getEditLabel = computed( () => {
-  let str = '';
-  if ( edit_type.value == MAIN_VIDEO ) {
-    str = 'video principale';
-  } else if ( edit_type.value == FEATURED_VIDEO ) {
-    str = 'featured video';
-  }
-  return str;
-});
-
+const email = ref('')
+const password = ref('')
+const error = ref(false)
 
 //==============================
 // Functions
 //==============================
+async function loadMainVideo() {
+  const res = await getMainVideo({ path: 'video/main' })
+  main_video.value = res.value.data()
+}
+
 async function loadAllVideo() {
-  for ( const [ category, array ] of Object.entries( all_video ) ) {
+  for (const [category, array] of Object.entries(all_video)) {
     await loadVideo({ category, array })
   }
 }
 
 async function loadVideo({ category, array }) {
-  const res = await getItem({ documentName: category });
-  const data = res.value.data();
-  for ( const url of data.urls ) {
-    const data = await apiGetYouTubeData({ url });
-    array.push( data );
+  const items = await getVideo({ category })
+  for (const item of items) {
+    const data = await apiGetYouTubeData({ firebase_id: item.id, yt_id: item.url })
+    array.push(data)
   }
 }
-
 
 async function onLogin() {
-  const res = await login({ email: email.value, password: password.value });
-  error.value = res.value;
-  email.value = '';
-  password.value = '';
-  if ( !error.value ) {
-    is_logged.value = true;
-    show.login = false;
+  const res = await login({ email: email.value, password: password.value })
+  error.value = res.value
+  email.value = ''
+  password.value = ''
+  if (!error.value) {
+    is_logged.value = true
+    show.login = false
   }
 }
 
-
-async function onConfirmEdit(){
-  const err = await updateItem({ documentName: 'main', url: edit_url.value });
-  error.value = err.value;
-  edit_url.value = '';
-  if ( !error.value ) {
-    const res = await getItem({ documentName: 'main' });
-    show.edit = false;
-    main_video.value = res.value.data();
+async function onConfirmEdit() {
+  console.log(edit_type.value)
+  if (edit_type.value == 'main_video') {
+    const err = await updateMainItem({ documentName: 'main', url: edit_yt_id.value })
+    error.value = err.value
+    edit_yt_id.value = ''
+    edit_type.value = ''
+    if (!error.value) {
+      await loadMainVideo()
+      show.edit = false
+    }
+    return
+  } else {
+    await updateItem({
+      category: edit_type.value,
+      id: edit_firebase_id.value,
+      newVal: edit_yt_id.value
+    })
+    all_video[edit_type.value] = []
+    await loadVideo({ category: edit_type.value, array: all_video[edit_type.value] })
+    show.edit = false
   }
 }
 
 function onEditMain() {
-  show.edit = true;
-  edit_type.value = MAIN_VIDEO;
+  show.edit = true
+  edit_type.value = MAIN_VIDEO
 }
 
+async function onVideoDelete({ category, id }) {
+  await deleteItem({ category, id })
+  all_video[category] = []
+  await loadVideo({ category, array: all_video[category] })
+}
+
+async function onVideoUpdate({ category, yt_id, firebase_id }) {
+  edit_type.value = category
+  edit_yt_id.value = yt_id
+  edit_firebase_id.value = firebase_id
+  show.edit = true
+}
+
+function onAddVideo({ category }) {
+  show.add = true
+  edit_type.value = category
+}
+
+async function onConfirmAdd() {
+  await addItem({ category: edit_type.value, url: edit_yt_id.value })
+  all_video[edit_type.value] = []
+  await loadVideo({ category: edit_type.value, array: all_video[edit_type.value] })
+  show.add = false
+  edit_yt_id.value = ''
+  edit_type.value = ''
+}
 
 //==============================
 // Life cycle
 //==============================
 onBeforeMount(async () => {
-  const res = await getItem({ documentName: 'main'});
-  main_video.value = res.value.data();
-
-  await loadAllVideo();
+  await loadMainVideo()
+  await loadAllVideo()
 })
-
-
 </script>
 
 <style lang="scss" scoped>
@@ -318,8 +401,29 @@ section.body {
       position: absolute;
       top: 75%;
       left: 50%;
-      transform: translate(-50%,-50%);
+      transform: translate(-50%, -50%);
     }
+  }
+}
+
+.placeholder-card {
+  border: 0.3rem dashed var(--primary);
+  display: inline-block;
+  overflow: hidden;
+  margin: 0 0.8rem;
+  width: 45rem;
+  height: 38rem;
+  cursor: pointer;
+  border-radius: var(--radius-s);
+  position: relative;
+  &.bigger {
+    height: 56rem;
+  }
+  .add-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 }
 </style>

@@ -47,8 +47,8 @@ const orderedEvents = computed(() => (props.reverse ? props.events.reverse() : p
 </script>
 
 <style lang="scss" scoped>
-$rect-h: 35rem;
-$rect-w: 45rem;
+$rect-h: 30rem;
+$rect-w: 40rem;
 $left-rect-border: 0.3rem;
 
 .main {
@@ -126,14 +126,14 @@ $left-rect-border: 0.3rem;
           border: none;
         }
         h4.title {
-          padding: 0 3.5rem;
+          padding: 0 4rem;
           font-size: 2rem;
           color: var(--primary);
           text-align: left;
         }
         p.content {
           margin-top: 1rem;
-          padding: 0 3.5rem;
+          padding: 0 4rem;
           text-align: left;
         }
 

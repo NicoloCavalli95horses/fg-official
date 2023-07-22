@@ -399,3 +399,8 @@ label {
 .capitalize {
   text-transform: capitalize;
 }
+
+.no-touch {
+  pointer-events: none;
+  touch-action: none;
+}

@@ -4,7 +4,7 @@
       <iframe
         :width="width"
         :height="height"
-        :src="YT_BASE_URL + props.url + QUERY + props.url"
+        :src="YT_BASE_URL + props.id + QUERY + props.id"
         :allow="ALLOW"
         allowfullscreen
         frameborder="0"
@@ -28,12 +28,12 @@ import {
 // Props and consts
 // ========================
 const props = defineProps({
-  url: String
+  id: String
 })
 
 const OFFSET = 10;
 const YT_BASE_URL = 'https://www.youtube.com/embed/';
-const EXT_LINK = 'https://youtu.be/' + props.url;
+const EXT_LINK = 'https://youtu.be/' + props.id;
 const ALLOW = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
 const QUERY = '?autoplay=1&mute=1&loop=1&controls=0&playsinline=0&autohide=0&fs=0&rel=0&showinfo=0&end=35&disablekb=0&playlist=';
 

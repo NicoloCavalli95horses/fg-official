@@ -1,27 +1,29 @@
 <template>
-  <a :href="item.href">
-    <div :class="['thumb-wrapper', { 'bigger': bigger, 'opaque' : show_actions }]">
+  <div class="wrapper" :class="{ 'bigger': bigger, 'opaque': show_actions }">
+    <!-- thumbnail -->
+    <a :href="item.href" :class="{ 'no-touch': show_actions }">
       <img :src="item.src" />
       <div class="c-text top-12">
         <p>{{ filters.slice(item.title) }}</p>
         <p class="grey-text">{{ formatDuration }} ({{ item.year }})</p>
       </div>
-      <template v-if="show_actions">
-        <div class="btns">
-          <Btn :def="true" @click="emit('edit', item)">
-            <template #icon>
-              <Icon icon="fa-solid fa-pencil" class="svg-18" />
-            </template>
-          </Btn>
-          <Btn :def="true" class="top-12" @click="emit('delete', item)">
-            <template #icon>
-              <Icon icon="fa-solid fa-trash" class="svg-18" />
-            </template>
-          </Btn>
-        </div>
-      </template>
-    </div>
-  </a>
+    </a>
+    <!-- actions -->
+    <template v-if="show_actions">
+      <div class="btns">
+        <Btn :def="true" @click="emit('edit', item)">
+          <template #icon>
+            <Icon icon="fa-solid fa-pencil" class="svg-18" />
+          </template>
+        </Btn>
+        <Btn :def="true" class="top-12" @click="emit('delete', item.firebase_id)">
+          <template #icon>
+            <Icon icon="fa-solid fa-trash" class="svg-18" />
+          </template>
+        </Btn>
+      </div>
+    </template>
+  </div>
 </template>
 
 <script setup>
@@ -30,9 +32,10 @@
 // ==============================
 import {
   computed
-} from 'vue'
-import filters from '../utils/filters'
-import Btn from '../components/Btn.vue'
+} from 'vue';
+
+import filters from '../utils/filters';
+import Btn from '../components/Btn.vue';
 
 
 // ==============================
@@ -41,20 +44,16 @@ import Btn from '../components/Btn.vue'
 const props = defineProps({
   item: Object, // title, year, srsc, href, duration
   bigger: Boolean,
-  show_actions: Boolean,
+  show_actions: Boolean
 })
 
-const emit = defineEmits([
-  "edit",
-  "delete"
-]);
-
+const emit = defineEmits(['edit', 'delete'])
 
 const formatDuration = computed(() => `${props.item.duration.mm}:${props.item.duration.ss}`)
 </script>
 
 <style lang="scss" scoped>
-.thumb-wrapper {
+.wrapper {
   display: inline-block;
   overflow: hidden;
   margin: 0 0.8rem;
