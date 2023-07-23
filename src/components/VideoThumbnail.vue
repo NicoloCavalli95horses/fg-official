@@ -1,8 +1,8 @@
 <template>
-  <div class="wrapper" :class="{ 'bigger': bigger, 'opaque': show_actions }">
+  <div class="wrapper" :class="{ opaque: show_actions }">
     <!-- thumbnail -->
     <a :href="item.href" :class="{ 'no-touch': show_actions }">
-      <img :src="item.src" />
+      <img :src="item.src" :class="{ featured: bigger }" />
       <div class="c-text top-12">
         <p>{{ filters.slice(item.title) }}</p>
         <p class="grey-text">{{ formatDuration }} ({{ item.year }})</p>
@@ -30,13 +30,9 @@
 // ==============================
 // Import
 // ==============================
-import {
-  computed
-} from 'vue';
-
-import filters from '../utils/filters';
-import Btn from '../components/Btn.vue';
-
+import { computed } from 'vue'
+import filters from '../utils/filters'
+import Btn from '../components/Btn.vue'
 
 // ==============================
 // Props
@@ -50,6 +46,8 @@ const props = defineProps({
 const emit = defineEmits(['edit', 'delete'])
 
 const formatDuration = computed(() => `${props.item.duration.mm}:${props.item.duration.ss}`)
+
+
 </script>
 
 <style lang="scss" scoped>
@@ -57,17 +55,21 @@ const formatDuration = computed(() => `${props.item.duration.mm}:${props.item.du
   display: inline-block;
   overflow: hidden;
   margin: 0 0.8rem;
-  width: 45rem;
   cursor: pointer;
   position: relative;
-  &.bigger {
-    width: 65rem;
-  }
   &.opaque img {
     filter: brightness(0.2);
   }
   img {
-    width: 100%;
+    object-fit: cover;
+    object-position: 50% 50%;
+    box-sizing: border-box;
+    width: 40rem;
+    height: 22.5rem;
+    &.featured {
+      width: 60rem;
+      height: 33.7rem;
+    }
   }
   .btns {
     position: absolute;

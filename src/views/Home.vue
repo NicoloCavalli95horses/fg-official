@@ -407,17 +407,18 @@ section.body {
 }
 
 .placeholder-card {
-  border: 0.3rem dashed var(--primary);
+  border: 0.2rem dashed var(--primary);
   display: inline-block;
   overflow: hidden;
   margin: 0 0.8rem;
   width: 45rem;
-  height: 38rem;
+  height: 27.5rem;
   cursor: pointer;
   border-radius: var(--radius-s);
   position: relative;
+  box-sizing: border-box;
   &.bigger {
-    height: 56rem;
+    height: 38.7rem;
   }
   .add-btn {
     position: absolute;
