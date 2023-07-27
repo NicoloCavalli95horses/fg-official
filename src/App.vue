@@ -13,7 +13,6 @@
 // Import
 //==================================
 import { ref } from "vue";
-import { getViewport } from "./utils/screen_size";
 import { RouterView } from "vue-router";
 import { 
   onBeforeMount,

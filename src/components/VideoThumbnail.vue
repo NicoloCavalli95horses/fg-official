@@ -2,7 +2,7 @@
   <div class="wrapper" :class="{ opaque: show_actions }">
     <!-- thumbnail -->
     <a :href="item.href" :class="{ 'no-touch': show_actions }">
-      <img :src="item.src" :class="{ featured: bigger }" />
+      <img :src="item.src" :class="{ 'featured': bigger }" />
       <div class="c-text top-12">
         <p>{{ filters.slice(item.title) }}</p>
         <p class="grey-text">{{ formatDuration }} ({{ item.year }})</p>

@@ -1,25 +1,31 @@
 //==============================
 // Import
 //==============================
+import {
+  ref,
+} from 'vue';
+
 import { 
   db,
   auth,
-} from '../firebase/config'
+} from '../firebase/config';
 import { 
   doc,
+  query,
   getDoc,
   addDoc,
+  orderBy,
   getDocs,
   updateDoc,
   deleteDoc,
   collection,
-} from 'firebase/firestore'
-import { ref } from 'vue'
-
+  serverTimestamp,
+} from 'firebase/firestore';
 import { 
+  onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-} from 'firebase/auth'
+} from 'firebase/auth';
 
 
 //==============================
@@ -31,15 +37,22 @@ import {
 //==============================
 // Functions
 //==============================
-export async function login({email, password}) {
-  const error = ref( null );
-  try {
-    await signInWithEmailAndPassword(auth, email, password)
-  } catch ( err ) {
-    error.value = err.message;
-  }
+function _checkAuth() {
+  const res = ref( null );
+  onAuthStateChanged( auth, (data) => {
+    res.value = data;
+  });
+  return res;
+}
 
-  return error;
+export async function login({email, password}) {
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    return _checkAuth();
+  } catch ( err ) {
+    console.error('Login error:', err.message );
+    return err.message;
+  }
 }
 
 
@@ -97,7 +110,8 @@ export async function addItem({ category, url }) {
   const video_ref = doc(db, `video/${ category }`);
   const ids_ref = collection( video_ref, 'ids' );
   try {
-    await addDoc( ids_ref, {url} );
+    const newDoc = { url, createdAt: serverTimestamp() };
+    await addDoc( ids_ref, newDoc );
     return true;
   } catch (err) {
     console.error( err.message );
@@ -109,7 +123,7 @@ export async function getVideo({ category }) {
   const res = ref( null );
   const arr = [];
   const video_ref = doc(db, `video/${ category }`);
-  const ids_ref = collection( video_ref, 'ids' );
+  const ids_ref = query(collection( video_ref, 'ids' ), orderBy('createdAt', 'desc'));
   try {
     res.value = await getDocs( ids_ref );
     res.value.forEach( doc => {

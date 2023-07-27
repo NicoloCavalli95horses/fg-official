@@ -1,4 +1,5 @@
 <template>
+  <div v-if="!is_loaded" class="placeholder"></div>
   <a :href="EXT_LINK">
     <div class="wrapper">
       <iframe
@@ -8,6 +9,7 @@
         :allow="ALLOW"
         allowfullscreen
         frameborder="0"
+        @load="is_loaded = true"
       />
     </div>
   </a>
@@ -41,9 +43,9 @@ const QUERY = '?autoplay=1&mute=1&loop=1&controls=0&playsinline=0&autohide=0&fs=
 // ========================
 // Vars
 // ========================
-const width = ref(window.innerWidth - OFFSET);
-const height = ref(window.innerHeight - OFFSET);
-
+const width = ref( window.innerWidth - OFFSET );
+const height = ref( window.innerHeight - OFFSET );
+const is_loaded = ref( false );
 
 // ========================
 // Functions
@@ -52,6 +54,7 @@ function onWindowResize(){
   width.value = window.innerWidth - OFFSET;
   height.value = window.innerHeight - OFFSET;
 }
+
 
 // ========================
 // Life cycle
@@ -75,5 +78,11 @@ onBeforeUnmount(() => {
     min-height: 100%;
     pointer-events: none;
   }
+}
+
+.placeholder {
+  height: 100vh;
+  width: 100%;
+  background-color: var(--background);
 }
 </style>

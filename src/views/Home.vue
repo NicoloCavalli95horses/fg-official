@@ -18,7 +18,7 @@
     <!-- Video section -->
     <template v-for="(video, category) in all_video" :key="category">
       <h2 v-if="category == 'featured'" class="capitalize" id="video">{{ category }} video</h2>
-      <h3 v-else class="capitalize">{{ category }} video</h3>
+      <h3 v-else class="capitalize">{{ category }}</h3>
       <Carousel class="top-24">
         <div v-if="is_logged" :class="['placeholder-card', { bigger: category == 'featured' }]">
           <Btn :def="true" text="aggiungi" class="add-btn" @click="onAddVideo({ category })">
@@ -159,7 +159,11 @@
 //==============================
 // Import
 //==============================
-import { ref, reactive, computed, onBeforeMount } from 'vue'
+import {
+  ref,
+  reactive,
+  onBeforeMount
+} from 'vue';
 import {
   login,
   getVideo,
@@ -168,37 +172,41 @@ import {
   deleteItem,
   getMainVideo,
   updateMainItem
-} from '../../firebase/utils'
-import { getViewport } from '../utils/screen_size.js'
-import { apiGetYouTubeData } from '../utils/apis'
+} from '../../firebase/utils';
 
-import Btn from '../components/Btn.vue'
-import Modal from '../components/Modal.vue'
-import Timeline from '../components/Timeline.vue'
-import Carousel from '../components/Carousel.vue'
-import OnTopBtn from '../components/OnTopBtn.vue'
-import InputText from '../components/InputText.vue'
-import ContactForm from '../components/ContactForm.vue'
-import VideoPreview from '../components/VideoPreview.vue'
-import MusicPreview from '../components/MusicPreview.vue'
-import VideoThumbnail from '../components/VideoThumbnail.vue'
-import KeyboardShortcut from '../components/KeyboardShortcut.vue'
+import { getViewport } from '../utils/screen_size.js';
+import { apiGetYouTubeData } from '../utils/apis';
 
-//==============================
-// Consts
-//==============================
-const MAIN_VIDEO = 'main_video'
-const FEATURED = 'featured'
+import Btn from '../components/Btn.vue';
+import Modal from '../components/Modal.vue';
+import Timeline from '../components/Timeline.vue';
+import Carousel from '../components/Carousel.vue';
+import OnTopBtn from '../components/OnTopBtn.vue';
+import InputText from '../components/InputText.vue';
+import ContactForm from '../components/ContactForm.vue';
+import VideoPreview from '../components/VideoPreview.vue';
+import MusicPreview from '../components/MusicPreview.vue';
+import VideoThumbnail from '../components/VideoThumbnail.vue';
+import KeyboardShortcut from '../components/KeyboardShortcut.vue';
 
 //==============================
 // Consts
 //==============================
-const device = getViewport()
-const main_video = ref(null)
-const is_logged = ref(false)
-const edit_type = ref('')
-const edit_yt_id = ref('')
-const edit_firebase_id = ref('')
+const MAIN_VIDEO = 'main_video';
+const FEATURED = 'featured';
+
+//==============================
+// Consts
+//==============================
+const device = getViewport();
+const main_video = ref( null );
+const is_logged = ref( false );
+const edit_type = ref( '' );
+const edit_yt_id = ref( '' );
+const edit_firebase_id = ref( '' );
+const email = ref( '' );
+const password = ref( '' );
+const error = ref( false );
 
 const events = [
   {
@@ -261,123 +269,121 @@ const events = [
     content: "Dolo Città Gentile - primo premio al festival di Latina, sezione 'Paese Mio'",
     icon: 'fa-solid fa-award'
   }
-]
+];
 const iframes_src = [
   'https://open.spotify.com/embed/artist/2o59zMoStcmwcT2fKxC2vo?utm_source=generator&theme=0',
   'https://open.spotify.com/embed/artist/16JXnESerYvanRg1CGhkLz?utm_source=generator&theme=0'
-]
+];
 
 const all_video = reactive({
   featured: [],
   music: [],
-  social: []
-})
+  social: [],
+  commercial: []
+});
 
 const show = reactive({
   edit: false,
   add: false,
   login: false
-})
+});
 
-const email = ref('')
-const password = ref('')
-const error = ref(false)
 
 //==============================
 // Functions
 //==============================
 async function loadMainVideo() {
-  const res = await getMainVideo({ path: 'video/main' })
-  main_video.value = res.value.data()
+  const res = await getMainVideo({ path: 'video/main' });
+  main_video.value = res.value.data();
 }
 
 async function loadAllVideo() {
   for (const [category, array] of Object.entries(all_video)) {
-    await loadVideo({ category, array })
+    await loadVideo({ category, array });
   }
 }
 
 async function loadVideo({ category, array }) {
-  const items = await getVideo({ category })
+  const items = await getVideo({ category });
   for (const item of items) {
-    const data = await apiGetYouTubeData({ firebase_id: item.id, yt_id: item.url })
-    array.push(data)
+    const data = await apiGetYouTubeData({ firebase_id: item.id, yt_id: item.url });
+    array.push(data);
   }
 }
 
 async function onLogin() {
-  const res = await login({ email: email.value, password: password.value })
-  error.value = res.value
-  email.value = ''
-  password.value = ''
-  if (!error.value) {
-    is_logged.value = true
-    show.login = false
+  const res = await login({ email: email.value, password: password.value });
+  if ( res.value?.auth ) {
+    is_logged.value = true;
+    show.login = false;
+    email.value = '';
+    password.value = '';
+  } else {
+    error.value = res;
   }
 }
 
 async function onConfirmEdit() {
-  console.log(edit_type.value)
-  if (edit_type.value == 'main_video') {
-    const err = await updateMainItem({ documentName: 'main', url: edit_yt_id.value })
-    error.value = err.value
-    edit_yt_id.value = ''
-    edit_type.value = ''
-    if (!error.value) {
-      await loadMainVideo()
-      show.edit = false
+  if ( edit_type.value == 'main_video' ) {
+    const err = await updateMainItem({ documentName: 'main', url: edit_yt_id.value });
+    error.value = err.value;
+    edit_yt_id.value = '';
+    edit_type.value = '';
+    if ( !error.value ) {
+      await loadMainVideo();
+      show.edit = false;
     }
-    return
+    return;
   } else {
     await updateItem({
       category: edit_type.value,
       id: edit_firebase_id.value,
       newVal: edit_yt_id.value
     })
-    all_video[edit_type.value] = []
-    await loadVideo({ category: edit_type.value, array: all_video[edit_type.value] })
-    show.edit = false
+    all_video[edit_type.value] = [];
+    await loadVideo({ category: edit_type.value, array: all_video[edit_type.value] });
+    show.edit = false;
   }
 }
 
 function onEditMain() {
-  show.edit = true
-  edit_type.value = MAIN_VIDEO
+  show.edit = true;
+  edit_type.value = MAIN_VIDEO;
 }
 
 async function onVideoDelete({ category, id }) {
-  await deleteItem({ category, id })
-  all_video[category] = []
-  await loadVideo({ category, array: all_video[category] })
+  await deleteItem({ category, id });
+  all_video[category] = [];
+  await loadVideo({ category, array: all_video[category] });
 }
 
 async function onVideoUpdate({ category, yt_id, firebase_id }) {
-  edit_type.value = category
-  edit_yt_id.value = yt_id
-  edit_firebase_id.value = firebase_id
-  show.edit = true
+  edit_type.value = category;
+  edit_yt_id.value = yt_id;
+  edit_firebase_id.value = firebase_id;
+  show.edit = true;
 }
 
 function onAddVideo({ category }) {
-  show.add = true
-  edit_type.value = category
+  show.add = true;
+  edit_type.value = category;
 }
 
 async function onConfirmAdd() {
-  await addItem({ category: edit_type.value, url: edit_yt_id.value })
-  all_video[edit_type.value] = []
-  await loadVideo({ category: edit_type.value, array: all_video[edit_type.value] })
-  show.add = false
-  edit_yt_id.value = ''
-  edit_type.value = ''
+  await addItem({ category: edit_type.value, url: edit_yt_id.value });
+  all_video[edit_type.value] = [];
+  await loadVideo({ category: edit_type.value, array: all_video[edit_type.value] });
+  show.add = false;
+  edit_yt_id.value = '';
+  edit_type.value = '';
 }
 
 //==============================
 // Life cycle
 //==============================
 onBeforeMount(async () => {
-  await loadMainVideo()
-  await loadAllVideo()
+  await loadMainVideo();
+  await loadAllVideo();
 })
 </script>
 

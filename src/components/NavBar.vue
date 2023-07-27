@@ -51,7 +51,6 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 
 import Logo from "./Logo.vue";
-import Btn from "./Btn.vue";
 
 
 //==================================
@@ -144,7 +143,7 @@ nav {
       justify-content: space-between;
       align-items: center;
       &:not(:last-of-type) {
-        border-bottom: 0.2rem solid var(--primary);
+        border-bottom: 0.2rem solid var(--primary-05);
       }
     }
   }
