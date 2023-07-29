@@ -1,12 +1,8 @@
 <template>
-  <template v-if="!isLoaded">
-    <LoadingSpinner />
-  </template>
-  <template v-else>
+    <LoadingSpinner v-if="!is_loaded" />
     <NavBar />
-    <RouterView />
+    <RouterView @loaded="is_loaded = true" />
     <Footer />
-  </template>
 </template>
 <script setup>
 //==================================
@@ -14,11 +10,6 @@
 //==================================
 import { ref } from "vue";
 import { RouterView } from "vue-router";
-import { 
-  onBeforeMount,
-  onUnmounted
-} from "vue";
-
 import LoadingSpinner from "./components/LoadingSpinner.vue";
 import NavBar from "./components/NavBar.vue";
 import Footer from "./components/Footer.vue";
@@ -27,29 +18,7 @@ import Footer from "./components/Footer.vue";
 //==================================
 // Const
 //==================================
-const isLoaded = ref( false );
-const timeout = ref( undefined );
+const is_loaded = ref( false );
 
 
-//==================================
-// Function
-//==================================
-function onLoad() {
-  timeout.value = setTimeout(() => {
-    isLoaded.value = true;
-    clearTimeout( timeout.value );
-  }, 200);
-
-}
-
-//==================================
-// Life cycle
-//==================================
-onBeforeMount(() => {
-  window.addEventListener("load", onLoad);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("load", onLoad);
-});
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="abs-center">
+  <div class="loading-wrapper">
     <div class="wrapper">
       <h2>Loading</h2>
       <div class="dot"></div>
@@ -12,6 +12,17 @@
 <script setup></script>
 
 <style lang="scss" scoped>
+.loading-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100vh;
+  display: grid;
+  place-content: center;
+  background-color: var(--background);
+}
 .wrapper {
  display: flex;
  align-items: baseline;

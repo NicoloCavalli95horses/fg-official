@@ -34,7 +34,7 @@ const props = defineProps({
 // ==============================
 // Consts
 // ==============================
-const orderedEvents = computed(() => (props.reverse ? props.events.reverse() : props.events));
+const orderedEvents = computed(() => (props.reverse ? [ ...props.events].reverse() : props.events));
 
 
 </script>

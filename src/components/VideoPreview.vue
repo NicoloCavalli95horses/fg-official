@@ -1,5 +1,4 @@
 <template>
-  <div v-if="!is_loaded" class="placeholder"></div>
   <a :href="EXT_LINK">
     <div class="wrapper">
       <iframe
@@ -9,7 +8,7 @@
         :allow="ALLOW"
         allowfullscreen
         frameborder="0"
-        @load="is_loaded = true"
+        @load="e => emit('loaded', e)"
       />
     </div>
   </a>
@@ -33,6 +32,10 @@ const props = defineProps({
   id: String
 })
 
+const emit = defineEmits([
+  'loaded',
+])
+
 const OFFSET = 10;
 const YT_BASE_URL = 'https://www.youtube.com/embed/';
 const EXT_LINK = 'https://youtu.be/' + props.id;
@@ -45,7 +48,6 @@ const QUERY = '?autoplay=1&mute=1&loop=1&controls=0&playsinline=0&autohide=0&fs=
 // ========================
 const width = ref( window.innerWidth - OFFSET );
 const height = ref( window.innerHeight - OFFSET );
-const is_loaded = ref( false );
 
 // ========================
 // Functions
@@ -78,11 +80,5 @@ onBeforeUnmount(() => {
     min-height: 100%;
     pointer-events: none;
   }
-}
-
-.placeholder {
-  height: 100vh;
-  width: 100%;
-  background-color: var(--background);
 }
 </style>

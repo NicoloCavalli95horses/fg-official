@@ -4,12 +4,26 @@
 
 <script setup>
 //==================================
+// Import
+//==================================
+// import { computed } from 'vue'
+// import { getViewport } from '../utils/screen_size.js';
+
+
+//==================================
 // Consts
 //==================================
 defineProps({
   src: String,
 })
 
+// const device = getViewport();
+// const size = computed( () => {
+//   return {
+//       width: device.value == 'mobile' ? '24rem' : '40rem',
+//       height: device.value == 'mobile' ? '13rem' : '22.5rem',
+//     };
+// });
 
 </script>
 

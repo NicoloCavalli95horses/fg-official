@@ -1,7 +1,7 @@
 <template>
   <!-- Hero section -->
   <div class="preview-wrapper">
-    <VideoPreview v-if="main_video" :id="main_video?.url" />
+    <VideoPreview v-if="main_video" :id="main_video?.url" @loaded="emit('loaded')" />
     <div v-if="is_logged" class="btn-layer">
       <div class="btn">
         <Btn :def="true" text="modifica" @click="onEditMain">
@@ -13,12 +13,15 @@
     </div>
   </div>
 
-  <div class="separator" />
-  <section class="body">
+  <Separator />
+
+  <section :class="['body', { 'padded' : device != 'mobile' }]">
     <!-- Video section -->
     <template v-for="(video, category) in all_video" :key="category">
-      <h2 v-if="category == 'featured'" class="capitalize" id="video">{{ category }} video</h2>
-      <h3 v-else class="capitalize">{{ category }}</h3>
+      <h2 v-if="category == 'featured'" :class="['capitalize', { 'padded' : device == 'mobile' }]" id="video">
+        {{ category }} video
+      </h2>
+      <h3 v-else :class="['capitalize', { 'padded' : device == 'mobile' }]"> {{ category }} </h3>
       <Carousel class="top-24" :show_arrows="true">
         <div v-if="is_logged" :class="['placeholder-card', { bigger: category == 'featured' }]">
           <Btn :def="true" text="aggiungi" class="add-btn" @click="onAddVideo({ category })">
@@ -35,27 +38,22 @@
             :bigger="category == FEATURED"
             :show_actions="is_logged"
             @delete="(firebase_id) => onVideoDelete({ category: category, id: firebase_id })"
-            @edit="
-              (item) =>
-                onVideoUpdate({
-                  category: category,
-                  yt_id: item.yt_id,
-                  firebase_id: item.firebase_id
-                })
-            "
+            @edit="(item) => onVideoUpdate({category: category, yt_id: item.yt_id, firebase_id: item.firebase_id })"
           />
         </template>
       </Carousel>
-      <div class="separator" />
+      <Separator />
     </template>
-
-    <h3 id="about">About me</h3>
+    
+    <!-- About section -->
+    <h3 id="about" :class="{ 'padded' : device == 'mobile' }">About me</h3>
     <Carousel class="top-24" :show_arrows="true">
       <Timeline :events="events" :reverse="true" />
     </Carousel>
-    <div class="separator" />
+    <Separator />
 
-    <h3 id="music">Original compositions</h3>
+    <!-- Music section -->
+    <h3 id="music" :class="{ 'padded' : device == 'mobile' }">Original compositions</h3>
     <Carousel class="top-24">
       <MusicPreview
         v-for="(src, i) in iframes_src"
@@ -64,12 +62,13 @@
         :class="{ 'l-12': i > 0 }"
       />
     </Carousel>
-    <div class="separator" />
-
-    <h3 id="contact">Contact me</h3>
-    <ContactForm />
-    <div class="separator" />
-    <div class="separator" />
+    <Separator />
+    
+    <!-- Contact section -->
+    <h3 id="contact" :class="{ 'padded' : device == 'mobile' }">Contact me</h3>
+    <ContactForm :class="{ 'padded' : device == 'mobile' }" />
+    <Separator />
+    <Separator />
   </section>
 
   <!-- Go back on top button -->
@@ -152,7 +151,11 @@
     </template>
   </Modal>
 
-  <KeyboardShortcut :keys="['k']" :modifiers="['Control', 'Alt']" @keydown="show.login = true" />
+  <KeyboardShortcut
+    :modifiers="['Control', 'Alt']"
+    :keys="['k']"
+    @keydown="show.login = true"
+  />
 </template>
 
 <script setup>
@@ -181,11 +184,20 @@ import Timeline from '../components/Timeline.vue';
 import Carousel from '../components/Carousel.vue';
 import OnTopBtn from '../components/OnTopBtn.vue';
 import InputText from '../components/InputText.vue';
+import Separator from '../components/Separator.vue';
 import ContactForm from '../components/ContactForm.vue';
 import VideoPreview from '../components/VideoPreview.vue';
 import MusicPreview from '../components/MusicPreview.vue';
 import VideoThumbnail from '../components/VideoThumbnail.vue';
 import KeyboardShortcut from '../components/KeyboardShortcut.vue';
+
+
+//==============================
+// Props and emits
+//==============================
+const emit = defineEmits([
+  'loaded'
+]);
 
 //==============================
 // Consts
@@ -194,7 +206,7 @@ const MAIN_VIDEO = 'main';
 const FEATURED = 'featured';
 
 //==============================
-// Consts
+// Vars
 //==============================
 const device = getViewport();
 const main_video = ref( null );
@@ -385,7 +397,9 @@ onBeforeMount(async () => {
 <style lang="scss" scoped>
 section.body {
   margin: 0 auto;
-  padding: 0 4rem;
+  &.padded {
+    padding: 0 4rem;
+  }
 }
 
 .preview-wrapper {

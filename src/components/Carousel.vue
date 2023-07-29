@@ -1,5 +1,5 @@
 <template>
-  <div class="main-wrapper">
+  <div :class="['main-wrapper', { 'mobile-padding' : device == 'mobile' }]">
     <div
       ref="scrollable_content"
       class="scroller-wrapper"
@@ -93,6 +93,9 @@ function getChildWidth(){
 
 .main-wrapper {
   position: relative;
+  &.mobile-padding {
+    padding-left: 4rem;
+  }
   .scroller-wrapper {
     text-align: center;
     overflow: auto;

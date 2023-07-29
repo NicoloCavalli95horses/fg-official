@@ -1,13 +1,23 @@
 <template>
-  <div class="wrapper" :class="{ opaque: show_actions }">
+  <div class="wrapper" :class="{ 'opaque': show_actions }">
     <!-- thumbnail -->
-    <a :href="item.href" :class="{ 'no-touch': show_actions }">
-      <img :src="item.src" :class="{ 'featured': bigger }" />
-      <div class="c-text top-12">
-        <p>{{ filters.slice(item.title) }}</p>
-        <p class="grey-text">{{ formatDuration }} ({{ item.year }})</p>
+    <template v-if="error">
+      <div :class="['error-box', { 'featured' : bigger }]" >
+        <p>Fetching error</p>
       </div>
-    </a>
+      <div class="c-text top-12">
+        <p>Loading error</p>
+      </div>
+    </template>
+    <template v-else>
+      <a :href="item.href" :class="{ 'no-touch': show_actions }">
+        <img :src="item.src" :class="{ 'featured': bigger }" @error="error = true" />
+        <div class="c-text top-12">
+          <p>{{ filters.slice(item.title) }}</p>
+          <p class="grey-text">{{ formatDuration }} ({{ item.year }})</p>
+        </div>
+      </a>
+    </template>
     <!-- actions -->
     <template v-if="show_actions">
       <div class="btns">
@@ -31,6 +41,7 @@
 // Import
 // ==============================
 import {
+  ref,
   computed,
 } from 'vue';
 
@@ -63,6 +74,7 @@ const sizes = computed( () => {
     }
   };
 });
+const error = ref( false );
 
 </script>
 
@@ -75,6 +87,18 @@ const sizes = computed( () => {
   position: relative;
   &.opaque img {
     filter: brightness(0.2);
+  }
+  .error-box {
+    display: grid;
+    place-content: center;
+    width: v-bind('sizes.default.w');
+    height: v-bind('sizes.default.h');
+    border: 0.1rem solid var(--error-color);
+    border-radius: var(--radius-s);
+    &.featured {
+      width: v-bind('sizes.big.w');
+      height: v-bind('sizes.big.h');
+    }
   }
   img {
     object-fit: cover;
