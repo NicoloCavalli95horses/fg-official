@@ -20,7 +20,7 @@
         </div>
         <div class="info-row">
           <Icon class="mini-icon" icon="fa-solid fa-location-pin" />
-          <p>Mira(VE) 30034</p>
+          <p>Mira (VE) 30034</p>
         </div>
       </div>
     </section>

@@ -30,9 +30,14 @@
 // ==============================
 // Import
 // ==============================
-import { computed } from 'vue'
-import filters from '../utils/filters'
-import Btn from '../components/Btn.vue'
+import {
+  computed,
+} from 'vue';
+
+import filters from '../utils/filters';
+import Btn from '../components/Btn.vue';
+import { getViewport } from '../utils/screen_size.js';
+
 
 // ==============================
 // Props
@@ -41,12 +46,23 @@ const props = defineProps({
   item: Object, // title, year, srsc, href, duration
   bigger: Boolean,
   show_actions: Boolean
-})
+});
 
-const emit = defineEmits(['edit', 'delete'])
-
-const formatDuration = computed(() => `${props.item.duration.mm}:${props.item.duration.ss}`)
-
+const emit = defineEmits(['edit', 'delete']);
+const device = getViewport();
+const formatDuration = computed( () => `${props.item.duration.mm}:${props.item.duration.ss}`);
+const sizes = computed( () => {
+  return {
+    default: {
+      w: device.value == 'mobile' ? '24rem' : '40rem',
+      h: device.value == 'mobile' ? '13rem' : '22.5rem',
+    },
+    big: {
+      w: device.value == 'mobile' ? '24rem' : '60rem',
+      h: device.value == 'mobile' ? '13rem' : '33.7rem',
+    }
+  };
+});
 
 </script>
 
@@ -64,11 +80,11 @@ const formatDuration = computed(() => `${props.item.duration.mm}:${props.item.du
     object-fit: cover;
     object-position: 50% 50%;
     box-sizing: border-box;
-    width: 40rem;
-    height: 22.5rem;
+    width: v-bind('sizes.default.w');
+    height: v-bind('sizes.default.h');
     &.featured {
-      width: 60rem;
-      height: 33.7rem;
+      width: v-bind('sizes.big.w');
+      height: v-bind('sizes.big.h');
     }
   }
   .btns {

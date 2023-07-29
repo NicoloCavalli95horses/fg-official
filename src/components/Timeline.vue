@@ -3,15 +3,6 @@
     <div class="wrapper">
       <div class="line" />
 
-      <!-- today -->
-      <!-- <div class="rect">
-        <div class="half noborder">
-          <div class="today">
-            <h3>Today</h3>
-          </div>
-        </div>
-      </div> -->
-
       <div v-for="(ev, i) in orderedEvents" :key="ev.title" class="rect">
         <div class="half">
           <div v-if="i == 0 || (i > 0 && ev.year != orderedEvents[i - 1].year)" class="year">
@@ -30,7 +21,7 @@
 // ==============================
 // Import
 // ==============================
-import { computed } from 'vue'
+import { computed } from 'vue';
 
 // ==============================
 // Import
@@ -38,12 +29,14 @@ import { computed } from 'vue'
 const props = defineProps({
   events: Array,
   reverse: Boolean
-})
+});
 
 // ==============================
 // Consts
 // ==============================
-const orderedEvents = computed(() => (props.reverse ? props.events.reverse() : props.events))
+const orderedEvents = computed(() => (props.reverse ? props.events.reverse() : props.events));
+
+
 </script>
 
 <style lang="scss" scoped>
@@ -57,7 +50,7 @@ $left-rect-border: 0.3rem;
     position: relative;
     display: flex;
     align-items: center;
-    padding: 0 15rem;
+    padding: 0 10rem;
     height: 40rem;
     .line {
       position: absolute;
