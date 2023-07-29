@@ -11,7 +11,7 @@
   </div>
 
     <!-- arrows -->
-    <template v-if="device == 'desktop'">
+    <template v-if="device == 'desktop' && show_arrows">
       <Btn
         :class="['left', isOvering || isActive.left ? 'show' : 'hide']"
         @mouseenter="isActive.left = true"
@@ -54,6 +54,7 @@ import { getViewport } from '../utils/screen_size.js';
 // ==============================
 defineProps({
   width: String,
+  show_arrows: Boolean,
 });
 
 const device = getViewport();

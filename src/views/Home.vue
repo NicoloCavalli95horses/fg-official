@@ -19,7 +19,7 @@
     <template v-for="(video, category) in all_video" :key="category">
       <h2 v-if="category == 'featured'" class="capitalize" id="video">{{ category }} video</h2>
       <h3 v-else class="capitalize">{{ category }}</h3>
-      <Carousel class="top-24">
+      <Carousel class="top-24" :show_arrows="true">
         <div v-if="is_logged" :class="['placeholder-card', { bigger: category == 'featured' }]">
           <Btn :def="true" text="aggiungi" class="add-btn" @click="onAddVideo({ category })">
             <template #icon>
@@ -50,7 +50,7 @@
     </template>
 
     <h3 id="about">About me</h3>
-    <Carousel class="top-24">
+    <Carousel class="top-24" :show_arrows="true">
       <Timeline :events="events" :reverse="true" />
     </Carousel>
     <div class="separator" />
@@ -166,12 +166,10 @@ import {
 } from 'vue';
 import {
   login,
-  getVideo,
-  updateItem,
   addItem,
+  getItem,
+  updateItem,
   deleteItem,
-  getMainVideo,
-  updateMainItem
 } from '../../firebase/utils';
 
 import { getViewport } from '../utils/screen_size.js';
@@ -192,7 +190,7 @@ import KeyboardShortcut from '../components/KeyboardShortcut.vue';
 //==============================
 // Consts
 //==============================
-const MAIN_VIDEO = 'main_video';
+const MAIN_VIDEO = 'main';
 const FEATURED = 'featured';
 
 //==============================
@@ -293,7 +291,7 @@ const show = reactive({
 // Functions
 //==============================
 async function loadMainVideo() {
-  const res = await getMainVideo({ path: 'video/main' });
+  const res = await getItem({ category: MAIN_VIDEO });
   main_video.value = res.value.data();
 }
 
@@ -304,7 +302,7 @@ async function loadAllVideo() {
 }
 
 async function loadVideo({ category, array }) {
-  const items = await getVideo({ category });
+  const items = await getItem({ category });
   for (const item of items) {
     const data = await apiGetYouTubeData({ firebase_id: item.id, yt_id: item.url });
     array.push(data);
@@ -324,26 +322,23 @@ async function onLogin() {
 }
 
 async function onConfirmEdit() {
-  if ( edit_type.value == 'main_video' ) {
-    const err = await updateMainItem({ documentName: 'main', url: edit_yt_id.value });
-    error.value = err.value;
-    edit_yt_id.value = '';
-    edit_type.value = '';
-    if ( !error.value ) {
-      await loadMainVideo();
-      show.edit = false;
-    }
-    return;
+  if ( edit_type.value == MAIN_VIDEO ) {
+    const res = await updateItem({ category: edit_type.value, newVal: edit_yt_id.value })
+    res && await loadMainVideo();
   } else {
-    await updateItem({
+    const res = await updateItem({
       category: edit_type.value,
       id: edit_firebase_id.value,
       newVal: edit_yt_id.value
     })
-    all_video[edit_type.value] = [];
-    await loadVideo({ category: edit_type.value, array: all_video[edit_type.value] });
-    show.edit = false;
+    if ( res ) {
+      all_video[edit_type.value] = [];
+      await loadVideo({ category: edit_type.value, array: all_video[edit_type.value] });
+    }
   }
+  edit_yt_id.value = '';
+  edit_type.value = '';
+  show.edit = false;
 }
 
 function onEditMain() {
