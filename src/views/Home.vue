@@ -15,13 +15,11 @@
 
   <Separator />
 
-  <section :class="['body', { 'padded' : device != 'mobile' }]">
+  <section :class="['body', { 'padded' : device != 'mobile' }]" :style="{ 'padding' : device == 'desktop' ? '0 12rem' : '0 4rem'}">
     <!-- Video section -->
+    <div :ref="(el) => refs.video = el" />
     <template v-for="(video, category) in all_video" :key="category">
-      <h2 v-if="category == 'featured'" :class="['capitalize', { 'padded' : device == 'mobile' }]" id="video">
-        {{ category }} video
-      </h2>
-      <h3 v-else :class="['capitalize', { 'padded' : device == 'mobile' }]"> {{ category }} </h3>
+      <h3 :class="['capitalize', { 'padded' : device == 'mobile' }]" id="video"> {{ category }} </h3>
       <Carousel class="top-24" :show_arrows="true">
         <div v-if="is_logged" :class="['placeholder-card', { bigger: category == 'featured' }]">
           <Btn :def="true" text="aggiungi" class="add-btn" @click="onAddVideo({ category })">
@@ -46,14 +44,14 @@
     </template>
     
     <!-- About section -->
-    <h3 id="about" :class="{ 'padded' : device == 'mobile' }">About me</h3>
+    <h3 id="about" :ref="(el) => refs.about = el" :class="{ 'padded' : device == 'mobile' }">About me</h3>
     <Carousel class="top-24" :show_arrows="true">
       <Timeline :events="events" :reverse="true" />
     </Carousel>
     <Separator />
 
     <!-- Music section -->
-    <h3 id="music" :class="{ 'padded' : device == 'mobile' }">Original compositions</h3>
+    <h3 id="music" :ref="(el) => refs.music = el" :class="{ 'padded' : device == 'mobile' }">Original compositions</h3>
     <Carousel class="top-24">
       <MusicPreview
         v-for="(src, i) in iframes_src"
@@ -65,7 +63,7 @@
     <Separator />
     
     <!-- Contact section -->
-    <h3 id="contact" :class="{ 'padded' : device == 'mobile' }">Contact me</h3>
+    <h3 id="contact" :ref="(el) => refs.contact = el" :class="{ 'padded' : device == 'mobile' }">Contact me</h3>
     <ContactForm :class="{ 'padded' : device == 'mobile' }" />
     <Separator />
     <Separator />
@@ -73,6 +71,13 @@
 
   <!-- Go back on top button -->
   <OnTopBtn />
+
+  <!-- Floating menu -->
+  <FloatingMenu
+    v-if="device == 'desktop'"
+    :options="Object.keys(refs)"
+    :active="floating_active_opt"
+  />
 
   <!-- Login modal -->
   <Modal
@@ -165,7 +170,8 @@
 import {
   ref,
   reactive,
-  onBeforeMount
+  onBeforeMount,
+  onMounted
 } from 'vue';
 import {
   login,
@@ -187,6 +193,7 @@ import InputText from '../components/InputText.vue';
 import Separator from '../components/Separator.vue';
 import ContactForm from '../components/ContactForm.vue';
 import VideoPreview from '../components/VideoPreview.vue';
+import FloatingMenu from '../components/FloatingMenu.vue';
 import MusicPreview from '../components/MusicPreview.vue';
 import VideoThumbnail from '../components/VideoThumbnail.vue';
 import KeyboardShortcut from '../components/KeyboardShortcut.vue';
@@ -217,7 +224,7 @@ const edit_firebase_id = ref( '' );
 const email = ref( '' );
 const password = ref( '' );
 const error = ref( false );
-
+const floating_active_opt = ref( '' );
 const events = [
   {
     year: 2011,
@@ -298,6 +305,12 @@ const show = reactive({
   login: false
 });
 
+const refs = reactive({
+  video: undefined,
+  about: undefined,
+  music: undefined,
+  contact: undefined,
+});
 
 //==============================
 // Functions
@@ -385,6 +398,16 @@ async function onConfirmAdd() {
   edit_type.value = '';
 }
 
+function onIntersect( el ){
+  const DOM_ref = el[0];
+  if ( !DOM_ref.isIntersecting ) { return; }
+  for ( const [key, ref] of Object.entries( refs )) {
+    if ( DOM_ref.target == ref ) {
+      floating_active_opt.value = key;
+    }
+  }
+}
+
 //==============================
 // Life cycle
 //==============================
@@ -392,13 +415,23 @@ onBeforeMount(async () => {
   await loadMainVideo();
   await loadAllVideo();
 })
+
+onMounted( () => {
+  const options = { root: null, rootMargin: '0px', threshold: 0.5 };
+  const observer = new IntersectionObserver(onIntersect, options);
+  for ( const ref of Object.values( refs )) {
+    observer.observe( ref );
+  }
+})
+
+
 </script>
 
 <style lang="scss" scoped>
 section.body {
   margin: 0 auto;
   &.padded {
-    padding: 0 4rem;
+    max-width: 130rem;
   }
 }
 

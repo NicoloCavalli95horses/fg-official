@@ -5,8 +5,8 @@
   --primary: rgb(23, 131, 218);
   --primary-05: rgba(23, 131, 218, 0.5);
   --secondary: rgb(222, 231, 237);
-  --footer-bg: rgb(31, 31, 31); /* rgb(31, 48, 72); */
-  --footer-bg-05: rgba(31, 48, 72, 0.5);
+  --footer-bg: rgb(18, 18, 18); /* rgb(31, 48, 72); */
+  --footer-bg-05: rgba(18, 18, 18, 0.5);
   --backdrop: rgba(255, 235, 210, 0.1);
   --font-light: rgb(238, 231, 223);
   --font-dark: rgb(82, 109, 130);
