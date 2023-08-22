@@ -17,7 +17,7 @@
 
   <section
     :class="['body', { 'max-width padded' : device != 'mobile' }]"
-    :style="{ 'padding' : device == 'desktop' ? '0 12rem' : '0'}"
+    :style="{ 'padding' : device == 'desktop' ? '0 12rem' : device == 'tablet' ? '0 4rem' : '0'}"
   >
     <!-- Video section -->
     <template v-for="(video, category) in all_video" :key="category">
