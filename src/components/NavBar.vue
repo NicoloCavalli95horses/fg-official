@@ -2,10 +2,10 @@
   <!-- Desktop/tablet -->
   <nav v-if="device == 'desktop' || device == 'tablet'" class="desktop">
     <Logo class="l-48" />
-    <span :class="{ 'noshow' : device == 'desktop'}"><a href="#video">Video</a></span>
-    <span :class="{ 'noshow' : device == 'desktop'}"><a href="#about">About</a></span>
-    <span :class="{ 'noshow' : device == 'desktop'}"><a href="#music">Music</a></span>
-    <span :class="{ 'noshow' : device == 'desktop'}"><a href="#contact">Contact</a></span>
+    <span><a href="#video">Video</a></span>
+    <span><a href="#about">About</a></span>
+    <span><a href="#music">Music</a></span>
+    <span><a href="#contact">Contact</a></span>
   </nav>
 
   <!-- Mobile -->

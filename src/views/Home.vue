@@ -15,9 +15,11 @@
 
   <Separator />
 
-  <section :class="['body', { 'padded' : device != 'mobile' }]" :style="{ 'padding' : device == 'desktop' ? '0 12rem' : '0 4rem'}">
+  <section
+    :class="['body', { 'max-width padded' : device != 'mobile' }]"
+    :style="{ 'padding' : device == 'desktop' ? '0 12rem' : '0'}"
+  >
     <!-- Video section -->
-    <div :ref="(el) => refs.video = el" />
     <template v-for="(video, category) in all_video" :key="category">
       <h3 :class="['capitalize', { 'padded' : device == 'mobile' }]" id="video"> {{ category }} </h3>
       <Carousel class="top-24" :show_arrows="true">
@@ -44,14 +46,14 @@
     </template>
     
     <!-- About section -->
-    <h3 id="about" :ref="(el) => refs.about = el" :class="{ 'padded' : device == 'mobile' }">About me</h3>
+    <h3 id="about" :class="{ 'padded' : device == 'mobile' }">About me</h3>
     <Carousel class="top-24" :show_arrows="true">
       <Timeline :events="events" :reverse="true" />
     </Carousel>
     <Separator />
 
     <!-- Music section -->
-    <h3 id="music" :ref="(el) => refs.music = el" :class="{ 'padded' : device == 'mobile' }">Original compositions</h3>
+    <h3 id="music" :class="{ 'padded' : device == 'mobile' }">Original compositions</h3>
     <Carousel class="top-24">
       <MusicPreview
         v-for="(src, i) in iframes_src"
@@ -60,24 +62,17 @@
         :class="{ 'l-12': i > 0 }"
       />
     </Carousel>
-    <Separator />
+    <Separator v-if="device != 'mobile'" />
     
     <!-- Contact section -->
-    <h3 id="contact" :ref="(el) => refs.contact = el" :class="{ 'padded' : device == 'mobile' }">Contact me</h3>
+    <h3 id="contact" :class="{ 'padded' : device == 'mobile' }">Contact me</h3>
     <ContactForm :class="{ 'padded' : device == 'mobile' }" />
     <Separator />
     <Separator />
   </section>
 
   <!-- Go back on top button -->
-  <OnTopBtn />
-
-  <!-- Floating menu -->
-  <FloatingMenu
-    v-if="device == 'desktop'"
-    :options="Object.keys(refs)"
-    :active="floating_active_opt"
-  />
+  <OnTopBtn v-show="device != 'mobile'" />
 
   <!-- Login modal -->
   <Modal
@@ -171,7 +166,6 @@ import {
   ref,
   reactive,
   onBeforeMount,
-  onMounted
 } from 'vue';
 import {
   login,
@@ -193,7 +187,6 @@ import InputText from '../components/InputText.vue';
 import Separator from '../components/Separator.vue';
 import ContactForm from '../components/ContactForm.vue';
 import VideoPreview from '../components/VideoPreview.vue';
-import FloatingMenu from '../components/FloatingMenu.vue';
 import MusicPreview from '../components/MusicPreview.vue';
 import VideoThumbnail from '../components/VideoThumbnail.vue';
 import KeyboardShortcut from '../components/KeyboardShortcut.vue';
@@ -224,7 +217,6 @@ const edit_firebase_id = ref( '' );
 const email = ref( '' );
 const password = ref( '' );
 const error = ref( false );
-const floating_active_opt = ref( '' );
 const events = [
   {
     year: 2011,
@@ -247,7 +239,7 @@ const events = [
   {
     year: 2015,
     title: 'Composizione musica da film SAE',
-    content: 'Conseguito corso di composizione professionale per musica da film (SAE, Milano)',
+    content: 'Corso SAE di composizione professionale per musica da film',
     icon: 'fa-solid fa-music'
   },
   {
@@ -303,13 +295,6 @@ const show = reactive({
   edit: false,
   add: false,
   login: false
-});
-
-const refs = reactive({
-  video: undefined,
-  about: undefined,
-  music: undefined,
-  contact: undefined,
 });
 
 //==============================
@@ -398,16 +383,6 @@ async function onConfirmAdd() {
   edit_type.value = '';
 }
 
-function onIntersect( el ){
-  const DOM_ref = el[0];
-  if ( !DOM_ref.isIntersecting ) { return; }
-  for ( const [key, ref] of Object.entries( refs )) {
-    if ( DOM_ref.target == ref ) {
-      floating_active_opt.value = key;
-    }
-  }
-}
-
 //==============================
 // Life cycle
 //==============================
@@ -416,21 +391,13 @@ onBeforeMount(async () => {
   await loadAllVideo();
 })
 
-onMounted( () => {
-  const options = { root: null, rootMargin: '0px', threshold: 0.5 };
-  const observer = new IntersectionObserver(onIntersect, options);
-  for ( const ref of Object.values( refs )) {
-    observer.observe( ref );
-  }
-})
-
 
 </script>
 
 <style lang="scss" scoped>
 section.body {
   margin: 0 auto;
-  &.padded {
+  &.max-width {
     max-width: 130rem;
   }
 }

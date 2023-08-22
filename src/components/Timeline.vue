@@ -1,11 +1,22 @@
 <template>
   <div class="main">
-    <div class="wrapper">
-      <div class="line" />
+  
+    <div v-if="device == 'mobile'" class="wrapper-mobile">
+      <div v-for="ev in orderedEvents" :key="ev.title" class="rect">
+        <Icon :icon="ev.icon" class="icon" />
+        <div class="text-wrapper">
+          <h4 class="title">{{ ev.title }}</h4>
+          <p class="content">{{ ev.content }}</p>
+        </div>
+        <div class="year"> <h3>{{ ev.year }}</h3> </div>
+      </div>
+    </div>
 
+    <div v-else class="wrapper-desktop">
+      <div class="line" />
       <div v-for="(ev, i) in orderedEvents" :key="ev.title" class="rect">
         <div class="half">
-          <div v-if="i == 0 || (i > 0 && ev.year != orderedEvents[i - 1].year)" class="year">
+          <div v-if="canShowYear(i, ev)" class="year">
             <h3>{{ ev.year }}</h3>
           </div>
           <h4 class="title">{{ ev.title }}</h4>
@@ -22,6 +33,8 @@
 // Import
 // ==============================
 import { computed } from 'vue';
+import { getViewport } from '../utils/screen_size.js';
+
 
 // ==============================
 // Import
@@ -31,11 +44,20 @@ const props = defineProps({
   reverse: Boolean
 });
 
+
 // ==============================
 // Consts
 // ==============================
-const orderedEvents = computed(() => (props.reverse ? [ ...props.events].reverse() : props.events));
+const device = getViewport();
+const orderedEvents = computed( () => props.reverse ? [ ...props.events].reverse() : props.events );
 
+
+// ==============================
+// Functions
+// ==============================
+function canShowYear(i, ev) {
+  return i == 0 || (i > 0 && ev.year != orderedEvents.value[i - 1].year);
+}
 
 </script>
 
@@ -46,7 +68,7 @@ $left-rect-border: 0.3rem;
 
 .main {
   display: inline-block;
-  .wrapper {
+  .wrapper-desktop {
     position: relative;
     display: flex;
     align-items: center;
@@ -139,6 +161,62 @@ $left-rect-border: 0.3rem;
           padding: 0.8rem;
           border-radius: 50%;
           transform: translate(calc(-50% - ($left-rect-border / 2)), -50%);
+        }
+      }
+    }
+  }
+  .wrapper-mobile {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 18rem;
+    .line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      transform: translate(0, -50%);
+      width: 100%;
+      height: 0.6rem;
+      background-color: var(--primary);
+      opacity: 0.7;
+    }
+    .rect {
+      width: 26rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
+      white-space: normal;
+      .icon {
+        box-sizing: border-box;
+        max-width: 3.5rem;
+        min-width: 3.5rem;
+        min-height: 3.5rem;
+        height: 20%;
+        margin: 0.8rem 0;
+      }
+      .text-wrapper {
+        box-sizing: border-box;
+        padding: 0.5rem 1.2rem 0 1.2rem;
+        max-height: 40%;
+        min-height: 40%;
+        .content {
+          padding-top: 0.3rem;
+          opacity: 0.9;
+        }
+      }
+      .year {
+        box-sizing: border-box;
+        max-height: 40%;
+        min-height: 40%;
+        display: grid;
+        place-content: center;
+        h3 {
+          color: var(--secondary);
+          opacity: 0.7;
         }
       }
     }
