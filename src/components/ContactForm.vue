@@ -1,6 +1,6 @@
 <template>
   <form
-    action="https://formsubmit.co/nicolo.cavalli95@gmail.com"
+    action="https://formsubmit.co/gozzofrancesco@gmail.com"
     method="POST"
     id="form"
     autocomplete="off"

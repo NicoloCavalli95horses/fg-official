@@ -12,8 +12,15 @@
 //==============================
 // Import
 //==============================
+import { onMounted } from "vue";
 import Btn from "../components/Btn.vue";
 
+const emit = defineEmits(['loaded']);
+
+// ==============================
+// Life cycle
+// ==============================
+onMounted(() => emit('loaded'));
 
 </script>
 

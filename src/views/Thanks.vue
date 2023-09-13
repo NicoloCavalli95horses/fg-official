@@ -23,12 +23,21 @@
 import Modal from "../components/Modal.vue";
 import Btn from "../components/Btn.vue";
 import { getViewport } from "../utils/screen_size.js";
+import { onMounted } from "vue";
+
+const emit = defineEmits([ 'loaded ']);
 
 
 // ==============================
 // Consts
 // ==============================
 const device = getViewport();
+
+
+// ==============================
+// Life cycle
+// ==============================
+onMounted(() => emit('loaded'));
 
 
 </script>
