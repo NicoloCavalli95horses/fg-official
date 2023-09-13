@@ -140,3 +140,27 @@ export async function getItem({ category }) {
   }
 }
 
+export async function loadEvents() {
+  const events_ref = query(collection(db, 'events'), orderBy('year'));
+  const data = ref( [] );
+  const docs = ref( [] );
+  try {
+    data.value = await getDocs( events_ref );
+    data.value.forEach( d => docs.value.push({ ...d.data(), id: d.id }))
+    return docs.value;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function addEvent( obj ) {
+  const events_ref = collection(db, 'events' );
+  try {
+    const newEvent = { ...obj, createdAt: serverTimestamp() };
+    await addDoc( events_ref, newEvent );
+    return true;
+  } catch (err) {
+    console.error( err.message );
+    return err;
+  }
+} 

@@ -46,8 +46,15 @@
     </template>
     
     <!-- About section -->
-    <h3 id="about" :class="{ 'padded' : device == 'mobile' }">About me</h3>
-    <Carousel class="top-24" :show_arrows="true">
+    <div class="flex-row-space-between">
+      <h3 id="about" :class="{ 'padded' : device == 'mobile' }">About me</h3>
+      <Btn v-if="is_logged" :def="true" text="aggiungi" class="add-btn" @click="onAddEvent">
+        <template #icon>
+          <Icon icon="fa-solid fa-plus" class="svg-18 l-12" />
+        </template>
+      </Btn>
+   </div>
+    <Carousel class="top-24">
       <Timeline :events="events" :reverse="true" />
     </Carousel>
     <Separator />
@@ -113,7 +120,7 @@
     min_width="50rem"
     max_height="30rem"
     :click_out_close="true"
-    @closed="show.edit = false"
+    @closed="() => { show.edit = false; edit_yt_id = ''; }"
   >
     <InputText
       label="Video ID"
@@ -123,20 +130,20 @@
     />
     <p class="error top-12" v-if="error">{{ error }}</p>
     <template #footer>
-      <Btn text="chiudi" @click="show.edit = false" />
-      <Btn text="conferma" :def="true" @click="onConfirmEdit" />
+      <Btn text="chiudi" @click="() => { show.edit = false; edit_yt_id = ''; }" />
+      <Btn text="conferma" :disabled="!edit_yt_id" :def="true" @click="onConfirmEdit" />
     </template>
   </Modal>
 
-  <!-- Add new modal -->
+  <!-- Add new video modal -->
   <Modal
-    v-if="show.add && device != 'mobile'"
+    v-if="show.add_video && device != 'mobile'"
     title="Aggiungi video"
     max_width="50rem"
     min_width="50rem"
     max_height="30rem"
     :click_out_close="true"
-    @closed="show.add = false"
+    @closed="show.add_video = false"
   >
     <InputText
       label="Video ID"
@@ -146,8 +153,49 @@
     />
     <p class="error top-12" v-if="error">{{ error }}</p>
     <template #footer>
-      <Btn text="chiudi" @click="show.add = false" />
-      <Btn text="conferma" :def="true" @click="onConfirmAdd" />
+      <Btn text="chiudi" @click="show.add_video = false" />
+      <Btn text="conferma" :disabled="!edit_yt_id" :def="true" @click="onConfirmAdd" />
+    </template>
+  </Modal>
+
+  <!-- Add new event modal -->
+  <Modal
+    v-if="show.add_event && device != 'mobile'"
+    title="Nuovo evento"
+    max_width="50rem"
+    min_width="50rem"
+    max_height="60rem"
+    :click_out_close="true"
+    @closed="resetNewEvent"
+  >
+    <InputText
+      label="Titolo"
+      v-model="new_event.title"
+      placeholder="Titolo evento"
+      @reset="new_event.title = ''"
+    />
+    <InputText
+      label="Contenuto"
+      v-model="new_event.content"
+      placeholder="Contenuto (max. 80 caratteri)"
+      @reset="new_event.content = ''"
+    />
+    <InputText
+      label="Anno"
+      v-model="new_event.year"
+      placeholder="Anno dell'evento"
+      @reset="new_event.year = ''"
+    />
+    <InputText
+      label="Icona"
+      v-model="new_event.icon"
+      placeholder="Icona (es. fa-solid fa-music)"
+      @reset="new_event.icon = ''"
+    />
+
+    <template #footer>
+      <Btn text="chiudi" @click="resetNewEvent" />
+      <Btn text="conferma" :disabled="!canConfirmNewEvent" :def="true" @click="onConfirmNewEvent" />
     </template>
   </Modal>
 
@@ -164,32 +212,35 @@
 //==============================
 import {
   ref,
+  computed,
   reactive,
   onBeforeMount,
 } from 'vue';
 import {
   login,
   addItem,
+  addEvent,
   getItem,
   updateItem,
   deleteItem,
+  loadEvents,
 } from '../../firebase/utils';
 
-import { getViewport } from '../utils/screen_size.js';
+import { getViewport }       from '../utils/screen_size.js';
 import { apiGetYouTubeData } from '../utils/apis';
 
-import Btn from '../components/Btn.vue';
-import Modal from '../components/Modal.vue';
-import Timeline from '../components/Timeline.vue';
-import Carousel from '../components/Carousel.vue';
-import OnTopBtn from '../components/OnTopBtn.vue';
-import InputText from '../components/InputText.vue';
-import Separator from '../components/Separator.vue';
-import ContactForm from '../components/ContactForm.vue';
-import VideoPreview from '../components/VideoPreview.vue';
-import MusicPreview from '../components/MusicPreview.vue';
-import VideoThumbnail from '../components/VideoThumbnail.vue';
-import KeyboardShortcut from '../components/KeyboardShortcut.vue';
+import Btn                   from '../components/Btn.vue';
+import Modal                 from '../components/Modal.vue';
+import Timeline              from '../components/Timeline.vue';
+import Carousel              from '../components/Carousel.vue';
+import OnTopBtn              from '../components/OnTopBtn.vue';
+import InputText             from '../components/InputText.vue';
+import Separator             from '../components/Separator.vue';
+import ContactForm           from '../components/ContactForm.vue';
+import VideoPreview          from '../components/VideoPreview.vue';
+import MusicPreview          from '../components/MusicPreview.vue';
+import VideoThumbnail        from '../components/VideoThumbnail.vue';
+import KeyboardShortcut      from '../components/KeyboardShortcut.vue';
 
 
 //==============================
@@ -217,71 +268,12 @@ const edit_firebase_id = ref( '' );
 const email = ref( '' );
 const password = ref( '' );
 const error = ref( false );
-const events = [
-  {
-    year: 2011,
-    title: 'Corso ENAIP',
-    content: 'Conseguito corso di Tecnico Multimediale audio-video ENAIP',
-    icon: 'fa-solid fa-school'
-  },
-  {
-    year: 2011,
-    title: 'Majestic Studio',
-    content: 'Stage formativo presso Majestic Studio',
-    icon: 'fa-solid fa-school'
-  },
-  {
-    year: 2014,
-    title: 'Teodasia tra i 10 migliori brani',
-    content: "Teodasia classificato tra i primi 10 migliori brani di Cristina D'Avena",
-    icon: 'fa-solid fa-music'
-  },
-  {
-    year: 2015,
-    title: 'Composizione musica da film SAE',
-    content: 'Corso SAE di composizione professionale per musica da film',
-    icon: 'fa-solid fa-music'
-  },
-  {
-    year: 2016,
-    title: 'iLike Social Business Network',
-    content: 'Documentario per iLike Social Business Network',
-    icon: 'fa-solid fa-video'
-  },
-  {
-    year: 2017,
-    title: 'Festival Souramont',
-    content: 'Teodasia miglior band al festival di Souramont',
-    icon: 'fa-solid fa-award'
-  },
-  {
-    year: 2018,
-    title: 'Insieme Idee Persone',
-    content: 'Regia per trasmissione televisiva',
-    icon: 'fa-solid fa-tv'
-  },
-  {
-    year: 2018,
-    title: 'Cattive Abitudini',
-    content: "Documentario per Band 'Cattive Abitudini'",
-    icon: 'fa-solid fa-video'
-  },
-  {
-    year: 2019,
-    title: 'Direttore creativo Exozerol',
-    content: 'Direttore creativo per Exozerol, Mirano (VE)',
-    icon: 'fa-solid fa-video'
-  },
-  {
-    year: 2020,
-    title: 'Premio festival di Latina',
-    content: "Dolo Città Gentile - primo premio al festival di Latina, sezione 'Paese Mio'",
-    icon: 'fa-solid fa-award'
-  }
-];
+const events = ref( [] );
+
 const iframes_src = [
+  'https://open.spotify.com/embed/artist/2S2ygJ3pteTiDCGVu7ruuc?utm_source=generator&theme=0',
   'https://open.spotify.com/embed/artist/2o59zMoStcmwcT2fKxC2vo?utm_source=generator&theme=0',
-  'https://open.spotify.com/embed/artist/16JXnESerYvanRg1CGhkLz?utm_source=generator&theme=0'
+  'https://open.spotify.com/embed/artist/16JXnESerYvanRg1CGhkLz?utm_source=generator&theme=0',
 ];
 
 const all_video = reactive({
@@ -293,9 +285,19 @@ const all_video = reactive({
 
 const show = reactive({
   edit: false,
-  add: false,
+  add_video: false,
+  add_event: false,
   login: false
 });
+
+const new_event = reactive({
+  year: '',
+  title: '',
+  content: '',
+  icon: '',
+})
+
+const canConfirmNewEvent = computed( () => new_event.year && new_event.title && new_event.content.length <= 80 && new_event.icon );
 
 //==============================
 // Functions
@@ -370,17 +372,39 @@ async function onVideoUpdate({ category, yt_id, firebase_id }) {
 }
 
 function onAddVideo({ category }) {
-  show.add = true;
+  show.add_video = true;
   edit_type.value = category;
+}
+
+function onAddEvent() {
+  show.add_event = true;
 }
 
 async function onConfirmAdd() {
   await addItem({ category: edit_type.value, url: edit_yt_id.value });
   all_video[edit_type.value] = [];
   await loadVideo({ category: edit_type.value, array: all_video[edit_type.value] });
-  show.add = false;
+  show.add_video = false;
   edit_yt_id.value = '';
   edit_type.value = '';
+}
+
+async function loadAllEvents() {
+  events.value = await loadEvents();
+}
+
+async function onConfirmNewEvent() {
+  await addEvent( new_event ); 
+  await loadAllEvents();
+  resetNewEvent();
+}
+
+function resetNewEvent() {
+  show.add_event = false;
+  new_event.year = '';
+  new_event.title = '';
+  new_event.content = '';
+  new_event.icon = '';
 }
 
 //==============================
@@ -389,6 +413,7 @@ async function onConfirmAdd() {
 onBeforeMount(async () => {
   await loadMainVideo();
   await loadAllVideo();
+  await loadAllEvents();
 })
 
 

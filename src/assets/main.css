@@ -130,6 +130,12 @@ svg {
   justify-content: space-between;
 }
 
+.flex-row-space-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .grow-1 {
   flex-grow: 1;
 }

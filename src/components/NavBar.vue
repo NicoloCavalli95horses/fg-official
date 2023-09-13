@@ -75,7 +75,7 @@ nav {
   z-index: 1;
   span {
     text-transform: uppercase;
-    letter-spacing: 5px;
+    letter-spacing: 3px;
     padding: 8px 12px;
     cursor: pointer;
   }

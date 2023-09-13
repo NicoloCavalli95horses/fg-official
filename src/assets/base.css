@@ -100,7 +100,7 @@ h2 {
 }
 
 h3 {
-  color: var(--secondary);
+  color: var(--font-light);
   font-size: clamp(2rem, 2.5vw, 3rem);
 }
 
