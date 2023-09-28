@@ -52,9 +52,10 @@ import { getViewport } from '../utils/screen_size.js';
 // ==============================
 // Props
 // ==============================
-defineProps({
+const props = defineProps({
   width: String,
   show_arrows: Boolean,
+  step: Number, // force the scrolling step
 });
 
 const device = getViewport();
@@ -75,8 +76,14 @@ const scrollable_content = ref( undefined );
 // ==============================
 function scroll({ left, right }) {
   getChildWidth();
-  const val = right ? item.width : left ? -item.width : null;
-  scrollable_content.value.scrollLeft += val;
+  if ( props.step ) {
+    const val = right ? props.step : left ? -props.step : null;
+    scrollable_content.value.scrollLeft += val;
+    console.log( scrollable_content.value.scrollLeft );
+  } else {
+    const val = right ? item.width : left ? -item.width : null;
+    scrollable_content.value.scrollLeft += val;
+  }
 }
 
 function getChildWidth(){

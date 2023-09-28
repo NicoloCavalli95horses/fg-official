@@ -52,7 +52,7 @@
     <Btn :def="true" :disabled="isConfirmDisabled" class="top-12 float-r" text="Invia" />
 
     <!-- Redirect -->
-    <input type="hidden" name="_next" value="https://www.gozzofrancesco.it/thanks" />
+    <input type="hidden" name="_next" value="http://www.gozzofrancesco.it/" />
     <input type="hidden" name="_subject" :value="subject.content" />
     <input type="hidden" name="_template" value="table" />
 

@@ -55,7 +55,9 @@
       </Btn>
    </div>
     <Carousel class="top-24">
-      <Timeline :events="events" :reverse="true" />
+      <Carousel :show_arrows="true" :step="200">
+        <Timeline :events="events" :reverse="true" />
+      </Carousel>
     </Carousel>
     <Separator />
 
