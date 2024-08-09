@@ -26,7 +26,7 @@ defineProps({
     display: grid;
     place-content: center;
     user-select: none;
-    background-color: black;
+    background-color: var(--logo);
     border-radius: 50%;
     width: 50px;
     height: 50px;

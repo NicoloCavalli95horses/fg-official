@@ -5,15 +5,17 @@
   --primary: rgb(23, 131, 218);
   --primary-05: rgba(23, 131, 218, 0.5);
   --secondary: rgb(222, 231, 237);
-  --footer-bg: rgb(18, 18, 18); /* rgb(31, 48, 72); */
+  --footer-bg: rgb(3, 3, 3);
   --footer-bg-05: rgba(18, 18, 18, 0.5);
   --backdrop: rgba(255, 235, 210, 0.1);
   --font-light: rgb(238, 231, 223);
   --font-dark: rgb(82, 109, 130);
   --white: rgb(240, 240, 255); 
-  --black: rgb(11, 11, 11);
-  --background: var(--black); /*rgb(39, 55, 77);*/
+  --black: rgb(1, 1, 1);
+  --background: var(--black);
+  --dark-grey: rgb(34, 34, 34);
   --error-color: rgb(209, 44, 44);
+  --logo: rgba(23, 131, 218, 0.1);
 
   --grey: rgb(150, 150, 150);
 

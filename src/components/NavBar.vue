@@ -143,7 +143,7 @@ nav {
       justify-content: space-between;
       align-items: center;
       &:not(:last-of-type) {
-        border-bottom: 0.2rem solid var(--primary-05);
+        border-bottom: 0.2rem solid var(--dark-grey);
       }
     }
   }
