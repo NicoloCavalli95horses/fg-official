@@ -79,7 +79,6 @@ function scroll({ left, right }) {
   if ( props.step ) {
     const val = right ? props.step : left ? -props.step : null;
     scrollable_content.value.scrollLeft += val;
-    console.log( scrollable_content.value.scrollLeft );
   } else {
     const val = right ? item.width : left ? -item.width : null;
     scrollable_content.value.scrollLeft += val;

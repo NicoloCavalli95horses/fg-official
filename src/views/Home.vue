@@ -1,7 +1,7 @@
 <template>
   <!-- Hero section -->
   <div class="preview-wrapper">
-    <VideoPreview v-if="main_video" :id="main_video?.url" @loaded="emit('loaded')" />
+    <VideoPreview :id="main_video?.url" />
     <div v-if="is_logged" class="btn-layer">
       <div class="btn">
         <Btn :def="true" text="modifica" @click="onEditMain">
@@ -53,7 +53,7 @@
           <Icon icon="fa-solid fa-plus" class="svg-18 l-12" />
         </template>
       </Btn>
-   </div>
+    </div>
     <Carousel class="top-24">
       <Carousel :show_arrows="true" :step="200">
         <Timeline :events="events" :reverse="true" />
@@ -245,12 +245,6 @@ import VideoThumbnail        from '../components/VideoThumbnail.vue';
 import KeyboardShortcut      from '../components/KeyboardShortcut.vue';
 
 
-//==============================
-// Props and emits
-//==============================
-const emit = defineEmits([
-  'loaded'
-]);
 
 //==============================
 // Consts
@@ -299,14 +293,18 @@ const new_event = reactive({
   icon: '',
 })
 
-const canConfirmNewEvent = computed( () => new_event.year && new_event.title && new_event.content.length <= 80 && new_event.icon );
+const canConfirmNewEvent = computed( () => 
+  new_event.year &&
+  new_event.title &&
+  new_event.content.length <= 80
+  && new_event.icon
+);
 
 //==============================
 // Functions
 //==============================
 async function loadMainVideo() {
-  const res = await getItem({ category: MAIN_VIDEO });
-  main_video.value = res.value.data();
+  main_video.value = await getItem({ category: MAIN_VIDEO });
 }
 
 async function loadAllVideo() {
@@ -318,8 +316,7 @@ async function loadAllVideo() {
 async function loadVideo({ category, array }) {
   const items = await getItem({ category });
   for (const item of items) {
-    const data = await apiGetYouTubeData({ firebase_id: item.id, yt_id: item.url });
-    array.push(data);
+    array.push(item);
   }
 }
 

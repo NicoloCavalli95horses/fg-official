@@ -1,14 +1,17 @@
 <template>
   <a :href="EXT_LINK">
     <div class="wrapper">
+      <div v-if="!loaded" class="placeholder"></div>
+
       <iframe
+        :class="{ visible: loaded }"
         :width="width"
         :height="height"
         :src="YT_BASE_URL + props.id + QUERY + props.id"
         :allow="ALLOW"
         allowfullscreen
         frameborder="0"
-        @load="e => emit('loaded', e)"
+        @load="loaded = true"
       />
     </div>
   </a>
@@ -30,11 +33,7 @@ import {
 // ========================
 const props = defineProps({
   id: String
-})
-
-const emit = defineEmits([
-  'loaded',
-])
+});
 
 const OFFSET = 10;
 const YT_BASE_URL = 'https://www.youtube.com/embed/';
@@ -43,9 +42,7 @@ const ALLOW = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyrosc
 const QUERY = '?autoplay=1&mute=1&loop=1&controls=0&playsinline=0&autohide=0&fs=0&rel=0&showinfo=0&end=35&disablekb=0&playlist=';
 
 
-// ========================
-// Vars
-// ========================
+const loaded = ref(false);
 const width = ref( window.innerWidth - OFFSET );
 const height = ref( window.innerHeight - OFFSET );
 
@@ -72,13 +69,22 @@ onBeforeUnmount(() => {
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .wrapper {
+  position: relative;
   overflow: hidden;
-  iframe {
-    min-width: 100%;
-    min-height: 100%;
-    pointer-events: none;
-  }
+  background: #111;
+}
+
+iframe {
+  min-width: 100%;
+  min-height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+
+iframe.visible {
+  opacity: 1;
 }
 </style>
