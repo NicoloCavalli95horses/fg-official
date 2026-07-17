@@ -6,9 +6,8 @@ import filters from './filters'
  * @param {string} args.string - the ID of the YouTube video (e.g., DUMUhDF2vek)
  * @returns YouTube video information: title, year, src, href, duration
  */
-export async function apiGetYouTubeData({ firebase_id, yt_id }) {
+export async function apiGetYouTubeData( yt_id ) {
   const data = {
-    firebase_id,
     yt_id,
     title: '',
     year: -1,

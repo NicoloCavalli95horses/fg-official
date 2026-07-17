@@ -13,6 +13,7 @@ import {
   doc,
   query,
   getDoc,
+  setDoc,
   addDoc,
   orderBy,
   getDocs,
@@ -27,7 +28,8 @@ import {
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
 
-import { getStorage, setStorage } from '../src/utils/storage.js';
+import { getStorage, removeStorage, setStorage } from '../src/utils/storage.js';
+import { apiGetYouTubeData } from '../src/utils/apis.js';
 
 
 //==============================
@@ -40,6 +42,7 @@ function _checkAuth() {
   });
   return res;
 }
+
 
 export async function login({ email, password }) {
   try {
@@ -63,12 +66,14 @@ export async function signin({ email, password }) {
   return error;
 }
 
+
 export async function deleteItem({ category, id }) {
   const video_ref = doc(db, `video/${category}`);
   const ids_ref = collection(video_ref, 'ids');
   try {
     const id_ref = doc(ids_ref, id);
     await deleteDoc(id_ref);
+    removeStorage(`video:${category}`);
     return true;
   } catch (err) {
     console.error(err.message);
@@ -76,44 +81,42 @@ export async function deleteItem({ category, id }) {
   }
 }
 
-export async function updateItem({ category, id, newVal }) {
-  const video_ref = doc(db, `video/${category}`);
-  const ids_ref = collection(video_ref, 'ids');
 
-  if (category == 'main') {
-    const collection_ref = collection(db, 'video');
-    try {
-      const main_ref = doc(collection_ref, category);
-      await updateDoc(main_ref, { url: newVal });
-      return true;
-    } catch (err) {
-      console.error(err.message);
-      return false;
-    }
-  } else {
-    try {
-      const id_ref = doc(ids_ref, id);
-      await updateDoc(id_ref, { url: newVal });
-      return true;
-    } catch (err) {
-      console.error(err.message);
-      return false;
-    }
-  }
-}
+export async function updateItem({ category, id, yt_id }) {
+  const data = await apiGetYouTubeData(yt_id);
 
-export async function addItem({ category, url }) {
-  const video_ref = doc(db, `video/${category}`);
-  const ids_ref = collection(video_ref, 'ids');
+  const docRef =
+    category === 'main'
+      ? doc(db, 'video', 'main')
+      : doc(db, 'video', category, 'ids', id);
+
   try {
-    const newDoc = { url, createdAt: serverTimestamp() };
-    await addDoc(ids_ref, newDoc);
+    await updateDoc(docRef, data);
+    removeStorage(`video:${category}`);
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+}
+
+
+export async function addItem({ category, yt_id }) {
+  const video_ref = doc(db, `video/${category}`);
+  const ids_ref = collection(video_ref, 'ids');
+  const newDocRef = doc(ids_ref);
+  const data = await apiGetYouTubeData(yt_id);
+
+  try {
+    await setDoc(newDocRef, { ...data, firebase_id: newDocRef.id, createdAt: serverTimestamp() });
+    removeStorage(`video:${category}`);
     return true;
   } catch (err) {
     console.error(err.message);
     return err;
   }
 }
+
 
 export async function getItem({ category }) {
   const cacheKey = `video:${category}`;
@@ -124,7 +127,7 @@ export async function getItem({ category }) {
     console.log('Using cached data');
     return cached;
   }
-  
+
   console.log('Fetching fresh data');
 
   try {
@@ -163,6 +166,7 @@ export async function loadEvents() {
   }
 }
 
+
 export async function addEvent(obj) {
   const events_ref = collection(db, 'events');
   try {
@@ -189,6 +193,7 @@ export async function _updateDocDebug({ documentPath, data }) {
     throw err;
   }
 }
+
 
 export function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));

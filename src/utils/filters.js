@@ -30,7 +30,7 @@ const filters = {
   },
 
   slice: (title, length = 40) => {
-    return title.length < length ? title : (title = title.slice(0, length) + '...');
+    return title?.length < length ? title : (title = title?.slice(0, length) + '...');
   },
 }
 

@@ -1,13 +1,13 @@
 <template>
-  <a :href="EXT_LINK">
+  <a :href="href">
     <div class="wrapper">
       <div v-if="!loaded" class="placeholder"></div>
 
       <iframe
-        :class="{ visible: loaded }"
+        :class="{ 'visible': loaded }"
         :width="width"
         :height="height"
-        :src="YT_BASE_URL + props.id + QUERY + props.id"
+        :src="src"
         :allow="ALLOW"
         allowfullscreen
         frameborder="0"
@@ -23,6 +23,7 @@
 // ========================
 import {
   ref,
+  computed,
   onBeforeMount,
   onBeforeUnmount,
 } from 'vue'
@@ -37,7 +38,6 @@ const props = defineProps({
 
 const OFFSET = 10;
 const YT_BASE_URL = 'https://www.youtube.com/embed/';
-const EXT_LINK = 'https://youtu.be/' + props.id;
 const ALLOW = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
 const QUERY = '?autoplay=1&mute=1&loop=1&controls=0&playsinline=0&autohide=0&fs=0&rel=0&showinfo=0&end=35&disablekb=0&playlist=';
 
@@ -45,6 +45,9 @@ const QUERY = '?autoplay=1&mute=1&loop=1&controls=0&playsinline=0&autohide=0&fs=
 const loaded = ref(false);
 const width = ref( window.innerWidth - OFFSET );
 const height = ref( window.innerHeight - OFFSET );
+
+const href = computed(() => `https://youtu.be/${props.id}`);
+const src = computed(() => `${YT_BASE_URL}${props.id}${QUERY}${props.id}`);
 
 // ========================
 // Functions

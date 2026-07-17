@@ -1,7 +1,7 @@
 <template>
   <!-- Hero section -->
   <div class="preview-wrapper">
-    <VideoPreview :id="main_video?.url" />
+    <VideoPreview :id="main_video?.yt_id" />
     <div v-if="is_logged" class="btn-layer">
       <div class="btn">
         <Btn :def="true" text="modifica" @click="onEditMain">
@@ -229,7 +229,7 @@ import {
 } from '../../firebase/utils';
 
 import { getViewport }       from '../utils/screen_size.js';
-import { apiGetYouTubeData } from '../utils/apis';
+import { removeStorage } from '../utils/storage.js';
 
 import Btn                   from '../components/Btn.vue';
 import Modal                 from '../components/Modal.vue';
@@ -333,20 +333,23 @@ async function onLogin() {
 }
 
 async function onConfirmEdit() {
-  if ( edit_type.value == MAIN_VIDEO ) {
-    const res = await updateItem({ category: edit_type.value, newVal: edit_yt_id.value })
-    res && await loadMainVideo();
+  const isMain = edit_type.value === MAIN_VIDEO;
+
+  const success = await updateItem({
+    category: edit_type.value,
+    id: isMain ? undefined : edit_firebase_id.value,
+    yt_id: edit_yt_id.value,
+  });
+
+  if (!success) { return; }
+
+  if (isMain) {
+    await loadMainVideo();
   } else {
-    const res = await updateItem({
-      category: edit_type.value,
-      id: edit_firebase_id.value,
-      newVal: edit_yt_id.value
-    })
-    if ( res ) {
-      all_video[edit_type.value] = [];
-      await loadVideo({ category: edit_type.value, array: all_video[edit_type.value] });
-    }
+    all_video[edit_type.value] = [];
+    await loadVideo({ category: edit_type.value, array: all_video[edit_type.value] });
   }
+
   edit_yt_id.value = '';
   edit_type.value = '';
   show.edit = false;
@@ -380,7 +383,7 @@ function onAddEvent() {
 }
 
 async function onConfirmAdd() {
-  await addItem({ category: edit_type.value, url: edit_yt_id.value });
+  await addItem({ category: edit_type.value, yt_id: edit_yt_id.value });
   all_video[edit_type.value] = [];
   await loadVideo({ category: edit_type.value, array: all_video[edit_type.value] });
   show.add_video = false;
